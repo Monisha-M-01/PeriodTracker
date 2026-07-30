@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const symptoms_controller_1 = require("./symptoms.controller");
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const validate_1 = require("../../middleware/validate");
+const symptoms_schema_1 = require("./symptoms.schema");
+const router = (0, express_1.Router)();
+router.use(auth_middleware_1.requireAuth);
+router.post('/', (0, validate_1.validate)(symptoms_schema_1.logSymptomSchema), symptoms_controller_1.SymptomsController.create);
+router.get('/', symptoms_controller_1.SymptomsController.list);
+router.patch('/:id', (0, validate_1.validate)(symptoms_schema_1.updateSymptomSchema), symptoms_controller_1.SymptomsController.update);
+router.delete('/:id', symptoms_controller_1.SymptomsController.remove);
+exports.default = router;

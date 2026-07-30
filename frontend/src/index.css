@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", sans-serif;
+  --font-serif: "Playfair Display", serif;
+
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text-base);
+  
+  --color-primary: var(--primary-base);
+  --color-primary-foreground: var(--bg-card);
+  
+  --color-secondary: var(--secondary-base);
+  --color-secondary-foreground: var(--bg-card);
+  
+  --color-accent: var(--neutral-base);
+  --color-accent-foreground: var(--text-base);
+  
+  --color-muted: var(--neutral-base);
+  --color-muted-foreground: var(--text-base);
+  
+  --color-card: var(--bg-card);
+  --color-card-foreground: var(--text-base);
+  
+  --color-destructive: #E06C75;
+  --color-destructive-foreground: #FFFFFF;
+}
+
+@layer base {
+  :root {
+    /* Calm Theme */
+    --bg-base: #F5E4D7;
+    --primary-base: #C15F3C;
+    --secondary-base: #7C8363;
+    --neutral-base: #8B6F5C;
+    --text-base: #2B2420;
+    --bg-card: #FBF3EA;
+  }
+  
+  .theme-happy {
+    /* Happy Theme */
+    --bg-base: #FFEA93; /* Warm sunny yellow */
+    --primary-base: #FF6B6B; /* Vivid coral */
+    --secondary-base: #10B981; /* Bright grass green */
+    --neutral-base: #FBBF24; /* Amber */
+    --text-base: #2B2420; /* Same accessible text */
+    --bg-card: #FFFDF7; /* Off white */
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-110vh) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120vh) scale(1.2);
+  }
+}
+
+.animate-float-up {
+  animation-name: floatUp;
+}
+
+.glass-card {
+  background: rgba(251, 243, 234, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(193, 95, 60, 0.05);
+}
