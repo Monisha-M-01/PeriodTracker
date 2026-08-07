@@ -3,7 +3,7 @@ services:
     name: ritvi-api
     env: node
     plan: free
-    buildCommand: npm install && npm run build && npx prisma generate
+    buildCommand: npm install --include=dev && npm run build && npx prisma generate
     startCommand: npm run db:push && npm start
     envVars:
       - key: NODE_ENV
