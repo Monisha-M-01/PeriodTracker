@@ -20,3 +20,8 @@ export const deletePeriodFn = async (id: string) => {
   const res = await apiClient.delete<ApiResponse<{ message: string }>>(`/period/${id}`);
   return res.data;
 };
+
+export const togglePeriodDayFn = async (data: { date: string; isPeriod: boolean; flowIntensity?: string }) => {
+  const res = await apiClient.post<ApiResponse<any>>('/period/toggle', data);
+  return res.data;
+};

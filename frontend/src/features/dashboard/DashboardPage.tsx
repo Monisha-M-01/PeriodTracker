@@ -6,6 +6,7 @@ import { Spinner } from '../../components/ui/Spinner';
 import { format, differenceInDays } from 'date-fns';
 import { Droplet, CalendarHeart, AlertCircle, Sparkles, SmilePlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useQuery({
@@ -102,8 +103,9 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Next Period Card */}
-        <Card className="border-none bg-card shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-[28px] hover:shadow-md transition-shadow">
-          <CardContent className="p-6 md:p-8">
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Card className="border-none bg-card glass-card-interactive shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-[28px]">
+            <CardContent className="p-6 md:p-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-destructive/10 p-3 rounded-2xl text-destructive">
                 <Droplet className="h-6 w-6" strokeWidth={2} />
@@ -126,10 +128,12 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+      </motion.div>
 
         {/* Fertile Window Card */}
-        <Card className="border-none bg-card shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-[28px] hover:shadow-md transition-shadow">
-          <CardContent className="p-6 md:p-8">
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Card className="border-none bg-card glass-card-interactive shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-[28px]">
+            <CardContent className="p-6 md:p-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-primary/10 p-3 rounded-2xl text-primary">
                 <CalendarHeart className="h-6 w-6" strokeWidth={2} />
@@ -154,7 +158,8 @@ export default function DashboardPage() {
               </p>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
       </div>
 
     </div>

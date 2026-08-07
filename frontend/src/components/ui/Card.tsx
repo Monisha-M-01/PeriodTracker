@@ -47,4 +47,20 @@ const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 )
 CardFooter.displayName = "CardFooter"
 
+import { motion } from "framer-motion"
+
+export const InteractiveCard = React.forwardRef<HTMLDivElement, React.ComponentProps<typeof motion.div>>(
+  ({ className, ...props }, ref) => (
+    <motion.div
+      ref={ref}
+      whileHover={{ y: -2, scale: 1.01 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className={cn("rounded-lg border border-muted bg-card text-card-foreground shadow-sm glass-card-interactive cursor-pointer", className)}
+      {...props}
+    />
+  )
+)
+InteractiveCard.displayName = "InteractiveCard"
+
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }

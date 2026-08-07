@@ -15,19 +15,21 @@ export default function MoodMascot() {
     queryFn: getTodayCheckInFn,
   });
 
-  const moodString = data?.data?.moodString || '';
+  const moodString = (data?.data?.moodString || '').toLowerCase();
   
-  // Mood priority: Anxious/Irritable > Sad/Down > Excited/Loved > Happy > Calm/Neutral
+  // Mood priority: Anxious/Irritable > Sad/Down > Tired/Low Energy > Excited/Loved > Happy > Calm/Neutral
   let baseMood = 'Neutral';
-  if (moodString.includes('Anxious') || moodString.includes('Irritable')) {
+  if (moodString.includes('anxious') || moodString.includes('irritable')) {
     baseMood = 'Anxious';
-  } else if (moodString.includes('Sad') || moodString.includes('Down')) {
+  } else if (moodString.includes('sad') || moodString.includes('down')) {
     baseMood = 'Sad';
-  } else if (moodString.includes('Excited') || moodString.includes('Loved')) {
+  } else if (moodString.includes('tired') || moodString.includes('low_energy')) {
+    baseMood = 'Tired';
+  } else if (moodString.includes('excited') || moodString.includes('loved')) {
     baseMood = 'Excited';
-  } else if (moodString.includes('Happy')) {
+  } else if (moodString.includes('happy')) {
     baseMood = 'Happy';
-  } else if (moodString.includes('Calm')) {
+  } else if (moodString.includes('calm') || moodString.includes('neutral') || moodString.includes('meh')) {
     baseMood = 'Calm';
   }
 
@@ -35,8 +37,10 @@ export default function MoodMascot() {
   let happinessThreshold = 40;
   if (baseMood === 'Happy' || baseMood === 'Excited') {
     happinessThreshold = 20; // 4-5 pets
-  } else if (baseMood === 'Calm') {
+  } else if (baseMood === 'Calm' || baseMood === 'Neutral') {
     happinessThreshold = 40; // 8 pets
+  } else if (baseMood === 'Tired') {
+    happinessThreshold = 60; // 12 pets
   } else if (baseMood === 'Sad') {
     happinessThreshold = 70; // 14 pets
   } else if (baseMood === 'Anxious') {
@@ -111,6 +115,18 @@ export default function MoodMascot() {
             <path d="M 38 52 Q 40 56 42 52 Z" fill="#7dd3fc" />
           </>
         );
+      case 'Tired':
+        return (
+          <>
+            {/* Sleepy closed eyes */}
+            <path d="M 35 48 Q 40 45 45 48" stroke="#64748b" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M 55 48 Q 60 45 65 48" stroke="#64748b" strokeWidth="3" fill="none" strokeLinecap="round" />
+            {/* Small yawn or neutral mouth */}
+            <circle cx="50" cy="58" r="3" fill="#64748b" />
+            {/* Zzz */}
+            <path d="M 65 25 L 75 25 L 65 35 L 75 35" stroke="#64748b" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        );
       case 'Excited': // The "Puppy" state
         return (
           <>
@@ -154,6 +170,7 @@ export default function MoodMascot() {
     switch (activeMood) {
       case 'Anxious': return 'fill-slate-200';
       case 'Sad': return 'fill-sky-100';
+      case 'Tired': return 'fill-indigo-100';
       case 'Excited': return 'fill-rose-200';
       case 'Happy': return 'fill-amber-100';
       case 'Calm':
@@ -181,6 +198,10 @@ export default function MoodMascot() {
     // Slow breathing
     mascotAnimate = { scaleY: [1, 0.98, 1] };
     mascotTransition = { repeat: Infinity, duration: 3, ease: "easeInOut" };
+  } else if (baseMood === 'Tired') {
+    // Very slow breathing, slightly flatter
+    mascotAnimate = { scaleY: [1, 0.95, 1], y: [0, 2, 0] };
+    mascotTransition = { repeat: Infinity, duration: 4, ease: "easeInOut" };
   } else {
     // Gentle bob
     mascotAnimate = { y: [0, -4, 0] };

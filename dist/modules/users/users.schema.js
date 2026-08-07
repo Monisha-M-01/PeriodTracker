@@ -9,5 +9,7 @@ exports.updateSettingsSchema = zod_1.z.object({
         reminderPeriodDaysBefore: zod_1.z.number().min(1).max(7).optional(),
         reminderNotificationsEnabled: zod_1.z.boolean().optional(),
         theme: zod_1.z.string().optional(),
+        hasCompletedOnboarding: zod_1.z.boolean().optional(),
+        periodStress: zod_1.z.string().optional().nullable(),
     }),
 });

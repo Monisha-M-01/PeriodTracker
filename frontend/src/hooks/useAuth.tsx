@@ -13,11 +13,33 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>({ id: 'dummy', email: 'demo@example.com', isVerified: true });
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Disabled fetching for bypassed auth
+    let isMounted = true;
+    const fetchUser = async () => {
+      try {
+        const { data } = await apiClient.get('/users/me');
+        if (isMounted && data.success) {
+          setUser(data.data);
+        }
+      } catch (e) {
+        if (isMounted) {
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    fetchUser();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = (token: string, userData: User) => {

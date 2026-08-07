@@ -9,10 +9,10 @@ export interface ButtonProps
   size?: 'default' | 'sm' | 'lg' | 'icon'
 }
 
+import { motion } from 'framer-motion';
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'default', asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
-    
     const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
     
     const variants = {
@@ -29,8 +29,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: "h-10 w-10",
     }
 
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(baseStyles, variants[variant], sizes[size], className)}
+          ref={ref as any}
+          {...props}
+        />
+      )
+    }
+
     return (
-      <Comp
+      <motion.button
+        whileHover={{ scale: 1.02, y: -1 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
         className={cn(baseStyles, variants[variant], sizes[size], className)}
         ref={ref}
         {...props}

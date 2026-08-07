@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Clock, Search, ExternalLink, ShieldCheck, Heart, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 import { SAMPLE_ARTICLES, CATEGORIES, type Article } from './articles.data';
 
@@ -15,7 +16,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function LearnMoreScreen() {
-  const [activeSection, setActiveSection] = useState<'Understand' | 'Manage'>('Understand');
+  const [activeSection, setActiveSection] = useState<'Understand' | 'Manage' | 'Hygiene'>('Understand');
   const [activeCategory, setActiveCategory] = useState(CATEGORIES.Understand[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export default function LearnMoreScreen() {
   const selectedArticle = SAMPLE_ARTICLES.find(a => a.id === selectedArticleId);
 
   // When changing section, reset category to "All ..."
-  const handleSectionChange = (section: 'Understand' | 'Manage') => {
+  const handleSectionChange = (section: 'Understand' | 'Manage' | 'Hygiene') => {
     setActiveSection(section);
     setActiveCategory(CATEGORIES[section][0]);
   };
@@ -144,25 +145,36 @@ export default function LearnMoreScreen() {
             >
               Manage (Remedies)
             </button>
+            <button
+              onClick={() => handleSectionChange('Hygiene')}
+              className={cn(
+                "flex-1 text-sm font-medium py-2 rounded-full transition-all",
+                activeSection === 'Hygiene' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Hygiene
+            </button>
           </div>
 
           {/* Categories for active section */}
-          <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
-            {CATEGORIES[activeSection].map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={cn(
-                  "whitespace-nowrap px-4 py-2 rounded-full text-[15px] font-medium transition-all",
-                  activeCategory === category
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-card text-muted-foreground border border-muted/20 hover:border-primary/30 hover:bg-muted/10"
-                )}
-              >
-                {category.replace('All Understand', 'All').replace('All Manage', 'All')}
-              </button>
-            ))}
-          </div>
+          {activeSection !== 'Hygiene' && (
+            <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
+              {CATEGORIES[activeSection].map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setActiveCategory(category)}
+                  className={cn(
+                    "whitespace-nowrap px-4 py-2 rounded-full text-[15px] font-medium transition-all",
+                    activeCategory === category
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-card text-muted-foreground border border-muted/20 hover:border-primary/30 hover:bg-muted/10"
+                  )}
+                >
+                  {category.replace('All Understand', 'All').replace('All Manage', 'All')}
+                </button>
+              ))}
+            </div>
+          )}
         </>
       )}
 
@@ -172,29 +184,75 @@ export default function LearnMoreScreen() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {filteredArticles.length === 0 ? (
-          <div className="py-12 text-center text-muted-foreground px-6 border-2 border-dashed border-muted/20 rounded-3xl bg-card/50">
-            <p className="text-[15px]">No articles found for "{searchQuery}" — try a different word.</p>
-          </div>
-        ) : (
-          filteredArticles.map(article => (
-            article.type === 'OFFICIAL' ? (
-              <a
-                key={article.id}
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full text-left bg-card p-4 rounded-3xl shadow-sm border border-muted/20 hover:border-primary/40 hover:shadow-md transition-all group relative overflow-hidden"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex flex-shrink-0 items-center justify-center text-3xl group-hover:scale-105 transition-transform">
+      <motion.div layout className="space-y-4">
+        <AnimatePresence mode="popLayout">
+          {filteredArticles.length === 0 ? (
+            <motion.div 
+              key="empty"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="py-12 text-center text-muted-foreground px-6 border-2 border-dashed border-muted/20 rounded-3xl bg-card/50"
+            >
+              <p className="text-[15px]">No articles found for "{searchQuery}" — try a different word.</p>
+            </motion.div>
+          ) : (
+            filteredArticles.map(article => (
+              article.type === 'OFFICIAL' ? (
+                <motion.a
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  key={article.id}
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full text-left bg-card p-4 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-muted/20 hover:border-primary/40 hover:shadow-md transition-colors group relative overflow-hidden"
+                >
+                  <div className="flex items-start space-x-4">
+                    <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex flex-shrink-0 items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                      {article.icon}
+                    </div>
+                    <div className="flex-1 min-w-0 py-0.5">
+                      <div className="inline-flex items-center space-x-1 bg-indigo-100/50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide mb-1.5 border border-indigo-200/50">
+                        <ShieldCheck className="w-3 h-3" />
+                        <span>Official Source: {article.sourceName}</span>
+                      </div>
+                      
+                      <h3 className="font-serif font-bold text-foreground line-clamp-2 text-[17px] leading-tight">
+                        {article.title}
+                      </h3>
+                      <p className="text-[14px] text-muted-foreground line-clamp-2 mt-1.5 leading-snug">
+                        {article.teaser}
+                      </p>
+                      <div className="mt-3 flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">
+                        Read on {article.sourceName} <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.a>
+              ) : (
+                <motion.button
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  key={article.id}
+                  onClick={() => setSelectedArticleId(article.id)}
+                  className="w-full text-left bg-card p-4 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-muted/20 hover:border-primary/40 hover:shadow-md transition-colors group flex items-start space-x-4"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex flex-shrink-0 items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
                     {article.icon}
                   </div>
                   <div className="flex-1 min-w-0 py-0.5">
-                    <div className="inline-flex items-center space-x-1 bg-indigo-100/50 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide mb-1.5 border border-indigo-200/50">
-                      <ShieldCheck className="w-3 h-3" />
-                      <span>Official Source: {article.sourceName}</span>
+                    <div className="inline-flex items-center space-x-1 bg-emerald-100/50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide mb-1.5 border border-emerald-200/50">
+                      <Heart className="w-3 h-3" />
+                      <span>From our team</span>
                     </div>
                     
                     <h3 className="font-serif font-bold text-foreground line-clamp-2 text-[17px] leading-tight">
@@ -203,43 +261,17 @@ export default function LearnMoreScreen() {
                     <p className="text-[14px] text-muted-foreground line-clamp-2 mt-1.5 leading-snug">
                       {article.teaser}
                     </p>
-                    <div className="mt-3 flex items-center text-sm font-medium text-indigo-600 group-hover:text-indigo-700">
-                      Read on {article.sourceName} <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                    <div className="flex items-center text-[11px] text-muted-foreground/80 mt-2.5 font-bold uppercase tracking-wider">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {article.time}
                     </div>
                   </div>
-                </div>
-              </a>
-            ) : (
-              <button
-                key={article.id}
-                onClick={() => setSelectedArticleId(article.id)}
-                className="w-full text-left bg-card p-4 rounded-3xl shadow-sm border border-muted/20 hover:border-primary/40 hover:shadow-md transition-all group flex items-start space-x-4"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex flex-shrink-0 items-center justify-center text-3xl group-hover:scale-105 transition-transform">
-                  {article.icon}
-                </div>
-                <div className="flex-1 min-w-0 py-0.5">
-                  <div className="inline-flex items-center space-x-1 bg-emerald-100/50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide mb-1.5 border border-emerald-200/50">
-                    <Heart className="w-3 h-3" />
-                    <span>From our team</span>
-                  </div>
-                  
-                  <h3 className="font-serif font-bold text-foreground line-clamp-2 text-[17px] leading-tight">
-                    {article.title}
-                  </h3>
-                  <p className="text-[14px] text-muted-foreground line-clamp-2 mt-1.5 leading-snug">
-                    {article.teaser}
-                  </p>
-                  <div className="flex items-center text-[11px] text-muted-foreground/80 mt-2.5 font-bold uppercase tracking-wider">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {article.time}
-                  </div>
-                </div>
-              </button>
-            )
-          ))
-        )}
-      </div>
+                </motion.button>
+              )
+            ))
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 }

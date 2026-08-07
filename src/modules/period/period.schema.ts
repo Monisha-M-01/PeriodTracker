@@ -23,3 +23,11 @@ export const updatePeriodLogSchema = z.object({
     id: z.string().uuid(),
   })
 });
+
+export const togglePeriodDaySchema = z.object({
+  body: z.object({
+    date: z.string().datetime(),
+    isPeriod: z.boolean(),
+    flowIntensity: z.string().optional(),
+  })
+});

@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: ritvi-api
+    env: node
+    buildCommand: npm install && npm run build && npx prisma generate
+    startCommand: npm run db:push && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { TokenPayload } from '../utils/jwt.util';
+import { TokenPayload, verifyAccessToken } from '../utils/jwt.util';
 import { prisma } from '../config/prisma';
 
 declare global {
@@ -12,18 +12,22 @@ declare global {
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let user = await prisma.user.findFirst();
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: 'demo@example.com',
-          passwordHash: 'dummy',
-          isVerified: true
-        }
-      });
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ success: false, error: 'Unauthorized: No token provided' });
+      return;
     }
-    req.user = { userId: user.id };
-    next();
+
+    const token = authHeader.split(' ')[1];
+    
+    try {
+      const payload = verifyAccessToken(token);
+      req.user = payload;
+      next();
+    } catch (err) {
+      res.status(401).json({ success: false, error: 'Unauthorized: Invalid token' });
+      return;
+    }
   } catch (error) {
     next(error);
   }

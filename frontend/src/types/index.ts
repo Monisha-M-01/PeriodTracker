@@ -6,6 +6,7 @@ export interface ApiResponse<T> {
 
 export interface User {
   id: string;
+  name?: string;
   email: string;
   isVerified: boolean;
 }

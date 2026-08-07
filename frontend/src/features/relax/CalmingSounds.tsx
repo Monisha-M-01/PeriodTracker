@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Play, Square, Volume2, VolumeX, Music } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
+import { useHaptics } from '../../hooks/useHaptics';
 
 type SoundTrack = {
   id: string;
@@ -29,6 +31,7 @@ export default function CalmingSounds() {
   const [isMuted, setIsMuted] = React.useState(false);
   const [volume, setVolume] = React.useState(50);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const triggerHaptic = useHaptics();
 
   React.useEffect(() => {
     if (audioRef.current) {
@@ -41,7 +44,6 @@ export default function CalmingSounds() {
       if (playingId) {
         const track = SOUNDS.find(s => s.id === playingId);
         if (track) {
-          // Only change src if it's different to prevent restarting when pausing/resuming, though here playingId controls it all
           if (!audioRef.current.src.endsWith(track.file)) {
             audioRef.current.src = track.file;
           }
@@ -54,6 +56,7 @@ export default function CalmingSounds() {
   }, [playingId]);
 
   const handlePlayToggle = (id: string) => {
+    triggerHaptic('medium');
     if (playingId === id) {
       setPlayingId(null);
     } else {
@@ -80,7 +83,7 @@ export default function CalmingSounds() {
       <div className="flex items-center justify-between bg-card border border-muted/30 p-4 rounded-2xl shadow-sm">
         <span className="text-sm font-medium text-foreground">Global Volume</span>
         <div className="flex items-center gap-3 w-1/2 max-w-[200px]">
-          <button onClick={() => setIsMuted(!isMuted)} className="text-muted-foreground hover:text-foreground">
+          <button onClick={() => { triggerHaptic('light'); setIsMuted(!isMuted); }} className="text-muted-foreground hover:text-foreground">
             {isMuted || volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
           </button>
           <input 
@@ -103,38 +106,70 @@ export default function CalmingSounds() {
           const isPlaying = playingId === track.id;
           
           return (
-            <div 
+            <motion.div 
               key={track.id}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={cn(
-                "bg-card border rounded-2xl p-4 flex items-center justify-between shadow-sm transition-all",
-                isPlaying ? "border-primary/50 bg-primary/5" : "border-muted/30"
+                "relative overflow-hidden bg-card border rounded-[20px] p-4 flex items-center justify-between shadow-sm transition-all duration-500",
+                isPlaying ? "border-primary/50 shadow-[0_0_20px_rgba(193,95,60,0.15)] bg-gradient-to-br from-primary/5 to-transparent" : "border-muted/30 hover:border-primary/30"
               )}
             >
-              <div className="flex-1 min-w-0 pr-4">
-                <h3 className="font-medium text-foreground truncate">{track.name}</h3>
-                <p className="text-xs text-muted-foreground truncate">{track.source}</p>
+              {/* Background ambient glow if playing */}
+              <AnimatePresence>
                 {isPlaying && (
-                  <div className="flex items-center gap-1 mt-2">
-                    <span className="flex w-1 h-2 bg-primary animate-pulse rounded-full" />
-                    <span className="flex w-1 h-3 bg-primary animate-pulse rounded-full" style={{ animationDelay: '0.1s' }} />
-                    <span className="flex w-1 h-1 bg-primary animate-pulse rounded-full" style={{ animationDelay: '0.2s' }} />
-                    <span className="flex w-1 h-2 bg-primary animate-pulse rounded-full" style={{ animationDelay: '0.15s' }} />
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute -right-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl"
+                  />
                 )}
+              </AnimatePresence>
+
+              <div className="flex-1 min-w-0 pr-4 z-10">
+                <h3 className={cn("font-medium truncate transition-colors", isPlaying ? "text-primary font-semibold" : "text-foreground")}>{track.name}</h3>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{track.source}</p>
+                <AnimatePresence>
+                  {isPlaying && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="flex items-end gap-1 mt-3 h-4"
+                    >
+                      {[...Array(5)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          animate={{
+                            height: ["20%", "100%", "20%"],
+                          }}
+                          transition={{
+                            duration: 0.8 + (Math.random() * 0.5),
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: i * 0.1
+                          }}
+                          className="w-1.5 bg-primary rounded-t-sm"
+                        />
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               
               <button
                 onClick={() => handlePlayToggle(track.id)}
                 className={cn(
-                  "w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors focus:outline-none",
+                  "w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors focus:outline-none z-10",
                   isPlaying 
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90" 
                     : "bg-secondary/10 text-secondary hover:bg-secondary/20"
                 )}
               >
                 {isPlaying ? <Square className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-1" />}
               </button>
-            </div>
+            </motion.div>
           );
         })}
       </div>

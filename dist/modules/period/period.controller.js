@@ -15,7 +15,7 @@ class PeriodController {
     }
     static async list(req, res, next) {
         try {
-            const limit = parseInt(req.query.limit) || 20;
+            const limit = parseInt(req.query.limit) || 50;
             const offset = parseInt(req.query.offset) || 0;
             const logs = await period_service_1.PeriodService.getLogs(req.user.userId, limit, offset);
             (0, response_util_1.sendResponse)(res, 200, logs);
@@ -37,6 +37,16 @@ class PeriodController {
         try {
             await period_service_1.PeriodService.deleteLog(req.user.userId, req.params.id);
             (0, response_util_1.sendResponse)(res, 200, { message: 'Period log deleted' });
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+    static async toggle(req, res, next) {
+        try {
+            const { date, isPeriod, flowIntensity } = req.body;
+            const result = await period_service_1.PeriodService.togglePeriodDay(req.user.userId, date, isPeriod, flowIntensity);
+            (0, response_util_1.sendResponse)(res, 200, { success: true, data: result });
         }
         catch (error) {
             next(error);

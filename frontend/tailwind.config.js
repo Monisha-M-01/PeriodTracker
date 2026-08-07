@@ -14,6 +14,7 @@ export default {
       fontFamily: {
         sans: ['Outfit', 'sans-serif'],
         serif: ['Playfair Display', 'serif'],
+        ritvi: ['Dancing Script', 'cursive'],
       }
     },
   },

@@ -9,6 +9,7 @@ const router = (0, express_1.Router)();
 router.use(auth_middleware_1.requireAuth);
 router.post('/', (0, validate_1.validate)(period_schema_1.createPeriodLogSchema), period_controller_1.PeriodController.create);
 router.get('/', period_controller_1.PeriodController.list);
+router.post('/toggle', (0, validate_1.validate)(period_schema_1.togglePeriodDaySchema), period_controller_1.PeriodController.toggle);
 router.patch('/:id', (0, validate_1.validate)(period_schema_1.updatePeriodLogSchema), period_controller_1.PeriodController.update);
 router.delete('/:id', period_controller_1.PeriodController.remove);
 exports.default = router;

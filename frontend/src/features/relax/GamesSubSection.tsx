@@ -5,9 +5,20 @@ import BubblePop from './BubblePop';
 import BreathingExercise from './BreathingExercise';
 import ZenGarden from './ZenGarden';
 import ColorMatch from './ColorMatch';
+import MemoryMatch from './MemoryMatch';
+import RipplePond from './RipplePond';
+import MandalaDraw from './MandalaDraw';
+import InfinityTrace from './InfinityTrace';
+import StarConnect from './StarConnect';
+import CloudDissolve from './CloudDissolve';
+import SlidingPuzzle from './SlidingPuzzle';
+import MelodyGrid from './MelodyGrid';
 import MoodMascot from './MoodMascot';
+import TicTacToe from './games/TicTacToe';
+import SnakeGame from './games/SnakeGame';
+import Game2048 from './games/Game2048';
 
-type GameType = 'bubble' | 'breathing' | 'zen' | 'color' | null;
+type GameType = 'bubble' | 'breathing' | 'zen' | 'color' | 'memory' | 'ripple' | 'mandala' | 'infinity' | 'star' | 'cloud' | 'sliding' | 'melody' | 'tictactoe' | 'snake' | '2048' | null;
 
 const MINDFULNESS_GAMES = [
   { id: 'g1', title: 'The 5-4-3-2-1 Game', desc: 'A grounding technique to bring you into the present.', time: '2 min', color: 'bg-blue-100', text: 'Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste.' },
@@ -40,13 +51,62 @@ export default function GamesSubSection() {
   if (activeGame === 'breathing') return <BreathingExercise onExit={() => setActiveGame(null)} />;
   if (activeGame === 'zen') return <ZenGarden onExit={() => setActiveGame(null)} />;
   if (activeGame === 'color') return <ColorMatch onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'memory') return <MemoryMatch onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'ripple') return <RipplePond onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'mandala') return <MandalaDraw onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'infinity') return <InfinityTrace onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'star') return <StarConnect onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'cloud') return <CloudDissolve onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'sliding') return <SlidingPuzzle onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'melody') return <MelodyGrid onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'tictactoe') return <TicTacToe onExit={() => setActiveGame(null)} />;
+  if (activeGame === 'snake') return <SnakeGame onExit={() => setActiveGame(null)} />;
+  if (activeGame === '2048') return <Game2048 onExit={() => setActiveGame(null)} />;
 
   return (
     <div className="space-y-6 animate-in fade-in pb-8">
       <MoodMascot />
 
+      {/* Classic Arcade Games */}
+      <h3 className="text-xl font-serif font-semibold text-foreground px-1 pt-4">Classic Arcade Games</h3>
+      <p className="text-sm text-muted-foreground px-1 mb-4">Playable retro games to take your mind off things.</p>
+      
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        {/* Snake */}
+        <button onClick={() => setActiveGame('snake')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-green-500/10 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-green-500/20 transition-colors">
+             <div className="w-10 h-10 bg-green-500 rounded-sm" />
+             <Play className="w-8 h-8 text-green-600 drop-shadow-sm absolute" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Snake</h3>
+          <p className="text-xs text-muted-foreground mt-1">The classic game.</p>
+        </button>
+
+        {/* 2048 */}
+        <button onClick={() => setActiveGame('2048')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-orange-500/10 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-orange-500/20 transition-colors">
+             <div className="w-12 h-12 bg-orange-400 rounded-md flex items-center justify-center font-bold text-white text-lg">2048</div>
+             <Play className="w-8 h-8 text-orange-600 drop-shadow-sm absolute" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">2048</h3>
+          <p className="text-xs text-muted-foreground mt-1">Join the numbers.</p>
+        </button>
+
+        {/* Tic-Tac-Toe */}
+        <button onClick={() => setActiveGame('tictactoe')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-blue-500/10 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-blue-500/20 transition-colors">
+             <div className="w-12 h-12 flex items-center justify-center font-bold text-blue-500 text-3xl">X</div>
+             <Play className="w-8 h-8 text-blue-600 drop-shadow-sm absolute" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Tic-Tac-Toe</h3>
+          <p className="text-xs text-muted-foreground mt-1">X's and O's.</p>
+        </button>
+      </div>
+
       {/* Main Interactive Games */}
-      <h3 className="text-xl font-serif font-semibold text-foreground px-1 pt-4">Interactive Relax</h3>
+      <h3 className="text-xl font-serif font-semibold text-foreground px-1 pt-4">Mindfulness Mini-Games</h3>
+      <p className="text-sm text-muted-foreground px-1 mb-4">Interactive experiences designed to soothe anxiety and restore focus.</p>
+
       <div className="grid grid-cols-2 gap-4">
         {/* Bubble Pop */}
         <button onClick={() => setActiveGame('bubble')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
@@ -89,28 +149,117 @@ export default function GamesSubSection() {
           <h3 className="text-md font-serif font-bold text-foreground">Color Match</h3>
           <p className="text-xs text-muted-foreground mt-1">Tap matching colors.</p>
         </button>
+
+        {/* Memory Match */}
+        <button onClick={() => setActiveGame('memory')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-stone-100 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-stone-200 transition-colors">
+             <div className="w-8 h-10 bg-white rounded shadow-sm transform -rotate-12 absolute left-6" />
+             <div className="w-8 h-10 bg-white rounded shadow-sm transform rotate-6 absolute right-8" />
+             <Play className="w-8 h-8 text-stone-400 drop-shadow-sm relative z-10" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Memory Match</h3>
+          <p className="text-xs text-muted-foreground mt-1">Gentle card pairing.</p>
+        </button>
+
+        {/* Ripple Pond */}
+        <button onClick={() => setActiveGame('ripple')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-cyan-900 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-cyan-800 transition-colors">
+             <div className="w-16 h-16 rounded-full border-2 border-cyan-300/30 absolute scale-150" />
+             <div className="w-16 h-16 rounded-full border-2 border-cyan-300/50 absolute scale-100" />
+             <div className="w-16 h-16 rounded-full border-2 border-cyan-300/80 absolute scale-50" />
+             <Play className="w-8 h-8 text-cyan-200 drop-shadow-sm relative z-10" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Ripple Pond</h3>
+          <p className="text-xs text-muted-foreground mt-1">Sensory water tapping.</p>
+        </button>
+
+        {/* Mandala Draw */}
+        <button onClick={() => setActiveGame('mandala')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-amber-50 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-amber-100 transition-colors">
+             {/* Simple geometric pattern for thumbnail */}
+             <div className="absolute w-12 h-12 border border-amber-200 rotate-45" />
+             <div className="absolute w-12 h-12 border border-amber-200 rotate-0" />
+             <Play className="w-8 h-8 text-amber-500 drop-shadow-sm relative z-10" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Mandala Draw</h3>
+          <p className="text-xs text-muted-foreground mt-1">Symmetrical flow art.</p>
+        </button>
+
+        {/* Infinity Trace */}
+        <button onClick={() => setActiveGame('infinity')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-slate-900 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-slate-800 transition-colors">
+             <div className="absolute w-12 h-6 border-2 border-slate-700 rounded-full" />
+             <Play className="w-8 h-8 text-indigo-400 drop-shadow-sm relative z-10" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Infinity Trace</h3>
+          <p className="text-xs text-muted-foreground mt-1">Slow down and focus.</p>
+        </button>
+
+        {/* Star Connect */}
+        <button onClick={() => setActiveGame('star')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-indigo-950 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-indigo-900 transition-colors">
+             <div className="absolute top-4 left-4 w-1 h-1 bg-white rounded-full shadow-[0_0_4px_white]" />
+             <div className="absolute bottom-4 right-6 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_4px_white]" />
+             <Play className="w-8 h-8 text-indigo-200 drop-shadow-sm relative z-10" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Star Connect</h3>
+          <p className="text-xs text-muted-foreground mt-1">Draw constellations.</p>
+        </button>
+
+        {/* Cloud Dissolve */}
+        <button onClick={() => setActiveGame('cloud')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-sky-200 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-sky-300 transition-colors">
+             <div className="absolute top-4 left-4 w-8 h-4 bg-white/60 rounded-full blur-sm" />
+             <div className="absolute bottom-4 right-4 w-12 h-6 bg-white/60 rounded-full blur-[2px]" />
+             <Play className="w-8 h-8 text-sky-600 drop-shadow-sm relative z-10" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Cloud Dissolve</h3>
+          <p className="text-xs text-muted-foreground mt-1">Let thoughts float away.</p>
+        </button>
+
+        {/* Sliding Puzzle */}
+        <button onClick={() => setActiveGame('sliding')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-stone-100 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-stone-200 transition-colors">
+             <div className="grid grid-cols-3 gap-0.5 w-12 h-12 absolute">
+               {[...Array(8)].map((_, i) => <div key={i} className="bg-white rounded-[2px]" />)}
+             </div>
+             <Play className="w-8 h-8 text-stone-400 drop-shadow-sm relative z-10" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Slide Puzzle</h3>
+          <p className="text-xs text-muted-foreground mt-1">Gentle tile sliding.</p>
+        </button>
+
+        {/* Melody Grid */}
+        <button onClick={() => setActiveGame('melody')} className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group">
+          <div className="w-full h-24 bg-slate-50 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-slate-100 transition-colors">
+             <div className="grid grid-cols-4 gap-1 w-16 h-16 absolute">
+               {[...Array(16)].map((_, i) => <div key={i} className={`rounded-[2px] ${i % 5 === 0 ? 'bg-indigo-300' : 'bg-slate-200'}`} />)}
+             </div>
+             <Play className="w-8 h-8 text-slate-500 drop-shadow-sm relative z-10" />
+          </div>
+          <h3 className="text-md font-serif font-bold text-foreground">Melody Grid</h3>
+          <p className="text-xs text-muted-foreground mt-1">Visual rhythm maker.</p>
+        </button>
       </div>
 
-      <h3 className="text-xl font-serif font-semibold text-foreground px-1 pt-6">Mindfulness Mini-Games</h3>
-      <p className="text-sm text-muted-foreground px-1 mb-4">Certified mental exercises to quickly calm anxiety and restore focus.</p>
+      <h3 className="text-xl font-serif font-semibold text-foreground px-1 pt-8 border-t border-muted/20 mt-8">Mental Exercises</h3>
+      <p className="text-sm text-muted-foreground px-1 mb-4">Certified mental grounding exercises (text-based) to rapidly break anxiety loops.</p>
       
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {MINDFULNESS_GAMES.map((game) => (
           <button
             key={game.id}
             onClick={() => setSelectedMindGame(game)}
-            className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex items-center hover:border-primary/40 transition-all text-left w-full"
+            className="bg-card p-4 rounded-2xl shadow-sm border border-muted/20 flex flex-col hover:border-primary/40 transition-all text-left group"
           >
-            <div className={`w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center mr-4 ${game.color}`}>
-              <Play className="w-5 h-5 text-foreground/50" />
+            <div className={`w-full h-24 ${game.color} rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:opacity-80 transition-all`}>
+              <div className="absolute top-2 right-2 bg-white/50 text-foreground/70 text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap">
+                {game.time}
+              </div>
+              <Play className="w-8 h-8 text-foreground/30 drop-shadow-sm" />
             </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-foreground truncate">{game.title}</h4>
-              <p className="text-xs text-muted-foreground truncate mt-0.5">{game.desc}</p>
-            </div>
-            <div className="ml-2 bg-secondary/10 text-secondary text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap">
-              {game.time}
-            </div>
+            <h4 className="text-md font-serif font-bold text-foreground truncate w-full">{game.title}</h4>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{game.desc}</p>
           </button>
         ))}
       </div>

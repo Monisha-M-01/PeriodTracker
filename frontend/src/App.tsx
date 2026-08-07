@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from './hooks/useAuth';
 import { ToastProvider } from './hooks/useToast';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { AppShell } from './components/layout/AppShell';
+import { SplashScreen } from './components/ui/SplashScreen';
+import { AnimatePresence } from 'framer-motion';
+import LoginPage from './features/auth/LoginPage';
+import SignupPage from './features/auth/SignupPage';
 
 const TodayScreen = React.lazy(() => import('./features/today/TodayScreen'));
 const InsightsScreen = React.lazy(() => import('./features/insights/InsightsScreen'));
@@ -29,25 +32,35 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ToastProvider>
           <BrowserRouter>
+            <AnimatePresence>
+              {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+            </AnimatePresence>
             <React.Suspense fallback={<div className="h-screen w-screen flex items-center justify-center"><p>Loading...</p></div>}>
               <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
                 <Route path="/onboarding" element={<OnboardingPage />} />
-                <Route element={<AppShell />}>
-                  <Route path="/" element={<TodayScreen />} />
-                  <Route path="/insights" element={<InsightsScreen />} />
-                  <Route path="/learn" element={<LearnMoreScreen />} />
-                  <Route path="/relax" element={<RelaxScreen />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/profile" element={<ProfileScreen />} />
-                  <Route path="/calendar" element={<CalendarPage />} />
-                  <Route path="/checkin" element={<CheckInPage />} />
-                  <Route path="/log-period" element={<LogPeriodPage />} />
-                  <Route path="/log-symptom" element={<LogSymptomPage />} />
+                
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<AppShell />}>
+                    <Route path="/" element={<TodayScreen />} />
+                    <Route path="/insights" element={<InsightsScreen />} />
+                    <Route path="/learn" element={<LearnMoreScreen />} />
+                    <Route path="/relax" element={<RelaxScreen />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/profile" element={<ProfileScreen />} />
+                    <Route path="/calendar" element={<CalendarPage />} />
+                    <Route path="/checkin" element={<CheckInPage />} />
+                    <Route path="/log-period" element={<LogPeriodPage />} />
+                    <Route path="/log-symptom" element={<LogSymptomPage />} />
+                  </Route>
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
@@ -56,7 +69,7 @@ export default function App() {
           </BrowserRouter>
         </ToastProvider>
       </AuthProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
+

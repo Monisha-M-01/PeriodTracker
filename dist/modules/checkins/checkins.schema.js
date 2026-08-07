@@ -14,6 +14,10 @@ exports.upsertCheckInSchema = zod_1.z.object({
         symptoms: zod_1.z.string().optional().nullable(),
         workouts: zod_1.z.string().optional().nullable(),
         dietDetails: zod_1.z.string().optional().nullable(),
+        sleepBedtime: zod_1.z.string().optional().nullable(),
+        sleepWakeTime: zod_1.z.string().optional().nullable(),
+        sleepDurationMinutes: zod_1.z.number().optional().nullable(),
+        sleepQuality: zod_1.z.string().optional().nullable(),
     })
 });
 exports.getCheckInSchema = zod_1.z.object({

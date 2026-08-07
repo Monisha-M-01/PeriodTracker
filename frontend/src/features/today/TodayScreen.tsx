@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { User, Calendar, Droplets, Activity, CheckCircle, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { format, differenceInDays, subDays, addDays, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
+import { format, differenceInDays, differenceInCalendarDays, subDays, addDays, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 import { getPredictionsFn } from '../../api/cycles.api';
@@ -11,7 +11,9 @@ import { getTodayCheckInFn } from '../../api/checkins.api';
 import { Spinner } from '../../components/ui/Spinner';
 import { WeatherTheme } from '../../components/ui/WeatherTheme';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
+import { Skeleton } from '../../components/ui/Skeleton';
+import { AnimatedNumber } from '../../components/ui/AnimatedNumber';
+import { useHaptics } from '../../hooks/useHaptics';
 const INSIGHT_TIPS = [
   { emoji: '🌙', title: 'Sleep Hygiene', text: 'Going to bed at the same time every day helps regulate your circadian rhythm and improves sleep quality.' },
   { emoji: '💧', title: 'Hydration', text: 'Drinking enough water can help reduce bloating and fatigue, especially during your period.' },
@@ -28,41 +30,45 @@ const INSIGHT_TIPS = [
   { emoji: '✍️', title: 'Gratitude', text: 'Writing down 3 things you are grateful for can rewire your brain for positivity.' }
 ];
 
-const CYCLE_DAY_TIPS: Record<number, string> = {
+const PERIOD_FLOW_TIPS: Record<number, string> = {
   1: "Your period starts. Estrogen and progesterone are at their lowest. You may feel tired—rest up.",
   2: "Bleeding is usually heaviest today. Keep hydrating and don't push yourself too hard.",
   3: "Hormone levels are starting to slowly rise. You might begin feeling a tiny lift in energy.",
   4: "Your period is wrapping up. Gentle stretching can help relieve any lingering stiffness.",
   5: "Your uterine lining is shedding its final layers. Estrogen is on the upswing.",
-  6: "Welcome to the follicular phase! Rising estrogen means rising energy and sharper focus.",
-  7: "Estrogen continues to climb. This is a great time to tackle complex tasks or start new projects.",
-  8: "Your brain is highly primed for learning and socializing right now. Enjoy the outgoing energy.",
-  9: "Testosterone starts a slow rise, which can boost your confidence and sex drive.",
-  10: "You are approaching your peak energy window. High-intensity workouts might feel amazing today.",
-  11: "Estrogen is nearing its peak. You might notice your skin looking clearer and glowing.",
-  12: "Cervical fluid becomes clearer—a sign your body is preparing for ovulation.",
-  13: "Estrogen peaks! You are likely feeling your most sociable, articulate, and energized.",
-  14: "Ovulation day (approximate). An egg is released. You might feel a slight twinge in your pelvis.",
-  15: "The egg is traveling down the fallopian tube. Progesterone production begins.",
-  16: "Welcome to the luteal phase. Progesterone rises, which can have a calming, sedative effect.",
-  17: "You might feel your energy shift inward. It's a great time for solo work and organization.",
-  18: "Progesterone is high, which can slow digestion. Make sure you are eating plenty of fiber.",
-  19: "Your basal body temperature is elevated. You might feel warmer than usual.",
-  20: "Estrogen gets a secondary, smaller peak. You might feel a brief return of energy.",
-  21: "Progesterone peaks. You may feel deeply relaxed or slightly sluggish. Honor your pace.",
-  22: "If no pregnancy occurred, hormones start their steep drop. This is when PMS can begin.",
-  23: "Falling hormones can trigger sugar cravings. Try pairing sweet fruits with protein.",
-  24: "You might feel more sensitive or irritable. Prioritize self-care and protect your peace.",
-  25: "Energy levels drop. Swap intense workouts for yoga, walking, or gentle stretching.",
-  26: "Water retention might start. Keep drinking water and limit salty, processed foods.",
-  27: "Your uterus is preparing to shed its lining. You may feel pelvic heaviness or mild cramps.",
-  28: "The final day of your cycle. Rest, hydrate, and prepare for day 1 tomorrow."
+};
+
+const POST_PERIOD_TIPS: Record<number, string> = {
+  1: "Welcome to the follicular phase! Rising estrogen means rising energy and sharper focus.",
+  2: "Estrogen continues to climb. This is a great time to tackle complex tasks or start new projects.",
+  3: "Your brain is highly primed for learning and socializing right now. Enjoy the outgoing energy.",
+  4: "Testosterone starts a slow rise, which can boost your confidence and energy levels.",
+  5: "You are approaching your peak energy window. High-intensity workouts might feel amazing today.",
+  6: "Estrogen is nearing its peak. You might notice your skin looking clearer and glowing.",
+  7: "Cervical fluid becomes clearer—a sign your body is preparing for ovulation.",
+  8: "Estrogen peaks! You are likely feeling your most sociable, articulate, and energized.",
+  9: "Ovulation day (approximate). An egg is released. You might feel a slight twinge in your pelvis.",
+  10: "The egg is traveling down the fallopian tube. Progesterone production begins.",
+  11: "Welcome to the luteal phase. Progesterone rises, which can have a calming, sedative effect.",
+  12: "You might feel your energy shift inward. It's a great time for solo work and organization.",
+  13: "Progesterone is high, which can slow digestion. Make sure you are eating plenty of fiber.",
+  14: "Your basal body temperature is elevated. You might feel warmer than usual.",
+  15: "Estrogen gets a secondary, smaller peak. You might feel a brief return of energy.",
+  16: "Progesterone peaks. You may feel deeply relaxed or slightly sluggish. Honor your pace.",
+  17: "If no pregnancy occurred, hormones start their steep drop. This is when PMS can begin.",
+  18: "Falling hormones can trigger sugar cravings. Try pairing sweet fruits with protein.",
+  19: "You might feel more sensitive or irritable. Prioritize self-care and protect your peace.",
+  20: "Energy levels drop. Swap intense workouts for yoga, walking, or gentle stretching.",
+  21: "Water retention might start. Keep drinking water and limit salty, processed foods.",
+  22: "Your uterus is preparing to shed its lining. You may feel pelvic heaviness or mild cramps.",
+  23: "The final day of your cycle. Rest, hydrate, and prepare for day 1 tomorrow."
 };
 
 export default function TodayScreen() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const shouldReduceMotion = useReducedMotion();
+  const triggerHaptic = useHaptics();
   const today = new Date();
   const todayIso = format(today, 'yyyy-MM-dd');
   
@@ -102,17 +108,29 @@ export default function TodayScreen() {
     }
   });
 
+
+
   if (isLoadingPreds || isLoadingPeriods || isLoadingCheckIn) {
-    return <div className="flex justify-center items-center h-full min-h-[50vh]"><Spinner size={32} /></div>;
+    return (
+      <div className="space-y-6 pb-6">
+        <Skeleton className="w-full h-[280px] rounded-[2rem]" />
+        <div className="grid grid-cols-3 gap-4">
+          <Skeleton className="h-[120px] rounded-2xl" />
+          <Skeleton className="h-[120px] rounded-2xl" />
+          <Skeleton className="h-[120px] rounded-2xl" />
+        </div>
+        <Skeleton className="w-full h-[180px] rounded-2xl" />
+      </div>
+    );
   }
 
   const predictions = predictionsData?.data?.predictions;
   const history = predictionsData?.data?.history;
   const periodLogs = periodsData?.data || [];
 
-  // Generate week strip: 3 days before, today, 3 days after
-  const weekDays = Array.from({ length: 7 }).map((_, i) => {
-    const d = addDays(subDays(today, 3), i);
+  // Generate week strip: 2 days before, today, 11 days after
+  const weekDays = Array.from({ length: 14 }).map((_, i) => {
+    const d = addDays(subDays(today, 2), i);
     
     // Check if d is within any logged period
     const hasLog = periodLogs.some(log => {
@@ -164,11 +182,31 @@ export default function TodayScreen() {
   };
 
   const cycleLength = history?.avgCycleLength || 28;
-  const currentDay = predictions ? differenceInDays(today, new Date(predictions.lastPeriodStartDate)) + 1 : 1;
+  const currentDay = (predictions && predictions.lastPeriodStartDate) ? differenceInCalendarDays(today, new Date(predictions.lastPeriodStartDate)) + 1 : 1;
   const progressPercentage = Math.min(Math.max((currentDay / cycleLength) * 100, 0), 100);
   const radius = 130;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progressPercentage / 100) * circumference;
+
+  const mostRecentPeriod = [...periodLogs].sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())[0];
+  let displayDay = 1;
+  let displayLabel = "Cycle Day";
+  let displayTip = "";
+
+  if (isPeriodLoggedToday && mostRecentPeriod) {
+    displayDay = differenceInCalendarDays(today, startOfDay(new Date(mostRecentPeriod.startDate))) + 1;
+    displayLabel = "Period Day";
+    displayTip = PERIOD_FLOW_TIPS[Math.min(displayDay, 5)] || "Your period is ongoing. Remember to rest and hydrate.";
+  } else {
+    if (mostRecentPeriod) {
+      const endDate = mostRecentPeriod.endDate ? endOfDay(new Date(mostRecentPeriod.endDate)) : endOfDay(new Date(mostRecentPeriod.startDate));
+      displayDay = Math.max(1, differenceInCalendarDays(today, endDate));
+    } else {
+      displayDay = 1;
+    }
+    displayLabel = "Cycle Day";
+    displayTip = POST_PERIOD_TIPS[Math.min(displayDay, 23)] || "Your body is resetting for the next cycle. Listen to your body and prioritize self-care.";
+  }
 
   return (
     <motion.div 
@@ -186,12 +224,7 @@ export default function TodayScreen() {
       
       {/* Top Bar */}
       <motion.header variants={itemVariants} className="flex items-center justify-between mb-2 md:hidden">
-        <button 
-          onClick={() => navigate('/profile')}
-          className="p-2 rounded-full bg-card shadow-sm border border-muted/20 text-muted-foreground hover:text-primary transition-colors"
-        >
-          <User className="w-5 h-5 stroke-[1.5]" />
-        </button>
+        <div className="w-9" /> {/* Spacer to keep date centered */}
         <h2 className="text-lg font-serif font-semibold">{todayStr}</h2>
         <button 
           onClick={() => navigate('/calendar')}
@@ -208,22 +241,21 @@ export default function TodayScreen() {
           <button onClick={() => navigate('/calendar')} className="p-2 text-muted-foreground hover:text-primary">
             <Calendar className="w-6 h-6 stroke-[1.5]" />
           </button>
-          <button onClick={() => navigate('/profile')} className="p-2 text-muted-foreground hover:text-primary">
-            <User className="w-6 h-6 stroke-[1.5]" />
-          </button>
         </div>
       </motion.header>
 
       {/* Week Strip */}
-      <section className="flex justify-between items-start px-2">
+      <section 
+        className="flex overflow-x-auto hide-scrollbar space-x-6 px-4 snap-x snap-mandatory py-2 -mx-4 md:mx-0"
+      >
         {weekDays.map((d, i) => (
-          <div key={i} className="flex flex-col items-center space-y-2">
+          <div key={i} data-today={d.isToday} className="flex flex-col items-center space-y-2 snap-center shrink-0 min-w-[40px]">
             <span className="text-xs font-medium text-muted-foreground">{d.day}</span>
             <div className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold relative transition-colors",
+              "w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold relative transition-colors cursor-pointer",
               d.isToday 
                 ? "bg-primary text-primary-foreground shadow-sm" 
-                : "bg-card text-foreground border border-muted/20"
+                : "bg-card text-foreground border border-muted/20 hover:border-primary/50"
             )}>
               {d.date}
               {d.hasLog && (
@@ -269,7 +301,7 @@ export default function TodayScreen() {
             ]
           }}
           transition={shouldReduceMotion ? {} : { duration: 6, ease: "easeInOut", repeat: Infinity }}
-          className="glass-card rounded-[2rem] p-8 flex flex-col items-center justify-center text-center relative overflow-hidden w-full h-[280px]"
+          className="glass-card animate-pulse-glow rounded-[2rem] p-8 flex flex-col items-center justify-center text-center relative overflow-hidden w-full h-[280px]"
         >
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2 relative z-10">Follicular Phase</h3>
@@ -280,7 +312,13 @@ export default function TodayScreen() {
                 {daysUntilNext! > 0 ? "Period in" : daysUntilNext! === 0 ? "Period expected" : "Period is"}
               </p>
               <div className="text-8xl font-serif font-bold text-primary my-4 drop-shadow-sm leading-none">
-                {daysUntilNext! === 0 ? "Today" : Math.abs(daysUntilNext!)}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 20 }}
+                >
+                  {daysUntilNext! === 0 ? "Today" : <AnimatedNumber value={Math.abs(daysUntilNext!)} />}
+                </motion.div>
               </div>
               {daysUntilNext! !== 0 && (
                 <p className="text-xl font-serif text-foreground">{daysUntilNext! < 0 ? "days late" : "days"}</p>
@@ -298,11 +336,14 @@ export default function TodayScreen() {
       {/* Quick Actions Row */}
       <motion.section variants={itemVariants} className="grid grid-cols-3 gap-4">
         <motion.button 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={() => togglePeriodMutation.mutate()}
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => {
+            triggerHaptic('medium');
+            togglePeriodMutation.mutate();
+          }}
           disabled={togglePeriodMutation.isPending}
-          className={cn("glass-card flex flex-col items-center justify-center p-4 rounded-2xl transition-colors group", isPeriodLoggedToday ? "border-primary bg-primary/5" : "hover:border-primary/30")}
+          className={cn("glass-card glass-card-interactive flex flex-col items-center justify-center p-4 rounded-2xl transition-colors group", isPeriodLoggedToday ? "border-primary bg-primary/5" : "hover:border-primary/30")}
         >
           <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors", isPeriodLoggedToday ? "bg-primary text-primary-foreground shadow-sm" : "bg-primary/10 group-hover:bg-primary/20 text-primary")}>
             {isPeriodLoggedToday ? <CheckCircle className="w-6 h-6 stroke-[1.5]" /> : <Droplets className="w-6 h-6 stroke-[1.5]" />}
@@ -313,10 +354,13 @@ export default function TodayScreen() {
         </motion.button>
 
         <motion.button 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={() => navigate('/log-symptom')}
-          className="glass-card flex flex-col items-center justify-center p-4 rounded-2xl hover:border-primary/30 transition-colors group"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => {
+            triggerHaptic('selection');
+            navigate('/log-symptom');
+          }}
+          className="glass-card glass-card-interactive flex flex-col items-center justify-center p-4 rounded-2xl hover:border-primary/30 transition-colors group"
         >
           <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mb-3 group-hover:bg-secondary/20 transition-colors">
             <Activity className="w-6 h-6 text-secondary stroke-[1.5]" />
@@ -325,10 +369,13 @@ export default function TodayScreen() {
         </motion.button>
 
         <motion.button 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={() => navigate('/checkin')}
-          className="glass-card flex flex-col items-center justify-center p-4 rounded-2xl hover:border-primary/30 transition-colors group"
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => {
+            triggerHaptic('selection');
+            navigate('/checkin');
+          }}
+          className="glass-card glass-card-interactive flex flex-col items-center justify-center p-4 rounded-2xl hover:border-primary/30 transition-colors group"
         >
           <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-3 group-hover:bg-accent/20 transition-colors">
             <CheckCircle className="w-6 h-6 text-accent stroke-[1.5]" />
@@ -354,12 +401,13 @@ export default function TodayScreen() {
           >
             <div className="flex items-center space-x-2 mb-3">
               <span className="text-xl">✨</span>
-              <h4 className="font-medium text-primary">
-                Cycle Day {currentDay}
+              <h4 className="font-medium text-primary flex items-center gap-1">
+                <span>{displayLabel}</span>
+                <span className="ml-1"><AnimatedNumber value={displayDay} /></span>
               </h4>
             </div>
             <p className="text-sm text-foreground/80 leading-relaxed font-medium">
-              {CYCLE_DAY_TIPS[Math.min(currentDay, 28)] || "Your body is resetting for the next cycle. Remember to rest and hydrate!"}
+              {displayTip}
             </p>
           </motion.div>
 

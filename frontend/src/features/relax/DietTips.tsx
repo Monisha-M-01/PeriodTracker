@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Apple, Droplets, Utensils, ChevronDown, CheckCircle, Leaf, Coffee, Fish, Flame, Carrot, Heart } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { differenceInDays } from 'date-fns';
+import { differenceInCalendarDays } from 'date-fns';
 import { getPredictionsFn } from '../../api/cycles.api';
+import { getPeriodsFn } from '../../api/period.api';
 import { cn } from '../../lib/utils';
 
 type Tip = {
@@ -59,32 +60,41 @@ export default function DietTips() {
     queryFn: getPredictionsFn,
   });
 
+  const { data: periodsData } = useQuery({
+    queryKey: ['periods'],
+    queryFn: getPeriodsFn,
+  });
+
   const today = new Date();
   const predictions = predictionsData?.data?.predictions;
+  const periodLogs = periodsData?.data || [];
   
-  // Calculate Cycle Day (1-28). If > 28, clamp to 28 for the tips logic.
+  // Calculate Cycle Day (1-28) based on most recent period start date
   let currentCycleDay = 1;
-  if (predictions?.lastPeriodStartDate) {
-    const diff = differenceInDays(today, new Date(predictions.lastPeriodStartDate)) + 1;
+  const mostRecentPeriod = [...periodLogs].sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())[0];
+
+  if (mostRecentPeriod) {
+    const diff = differenceInCalendarDays(today, new Date(mostRecentPeriod.startDate)) + 1;
+    currentCycleDay = Math.max(1, Math.min(diff, 28)); // Cap at 28 for tips array
+  } else if (predictions?.lastPeriodStartDate) {
+    const diff = differenceInCalendarDays(today, new Date(predictions.lastPeriodStartDate)) + 1;
     currentCycleDay = Math.max(1, Math.min(diff, 28)); // Cap at 28 for tips array
   }
 
   // Get today's specific tip and a few general ones
   const todayTip = CYCLE_DIET_TIPS.find(t => t.day === currentCycleDay) || CYCLE_DIET_TIPS[0];
   
-  // Show today's tip first, then the next two days to prepare
-  const upcomingTips = [
-    todayTip,
-    CYCLE_DIET_TIPS[(currentCycleDay % 28)], // Tomorrow
-    CYCLE_DIET_TIPS[(currentCycleDay + 1) % 28] // Day after
-  ];
+  // Show only today's tip
+  const upcomingTips = [todayTip];
 
   return (
     <div className="space-y-6 animate-in fade-in pb-8">
       
       <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-6 relative overflow-hidden">
         <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
-        <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-2">Cycle Day {currentCycleDay}</h3>
+        <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-2 flex items-center gap-1">
+          Cycle Day {currentCycleDay}
+        </h3>
         <p className="text-lg font-serif font-semibold text-foreground leading-tight mb-2">
           Your Daily Nutrition Guide
         </p>
