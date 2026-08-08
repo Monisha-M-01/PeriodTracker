@@ -47,7 +47,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl text-primary">Create an account</CardTitle>
-          <CardDescription>Join Cycle to start tracking</CardDescription>
+          <CardDescription>Join Ritvi to start tracking</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
