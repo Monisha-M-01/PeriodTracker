@@ -25,11 +25,11 @@ export default function OnboardingPage() {
   const [notSureCycle, setNotSureCycle] = useState(false);
   const [periodStress, setPeriodStress] = useState<string | null>(null);
 
-  const { mutate: updateSettings, isPending: isUpdating } = useMutation({
+  const { mutateAsync: updateSettings, isPending: isUpdating } = useMutation({
     mutationFn: updateSettingsFn,
   });
 
-  const { mutate: logPeriod, isPending: isLogging } = useMutation({
+  const { mutateAsync: logPeriod, isPending: isLogging } = useMutation({
     mutationFn: logPeriodFn,
   });
 
