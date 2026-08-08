@@ -182,7 +182,7 @@ export default function TodayScreen() {
   };
 
   const cycleLength = history?.avgCycleLength || 28;
-  const currentDay = (predictions && predictions.lastPeriodStartDate) ? differenceInCalendarDays(today, new Date(predictions.lastPeriodStartDate)) + 1 : 1;
+  const currentDay = (history && history.lastPeriodStartDate) ? differenceInCalendarDays(today, new Date(history.lastPeriodStartDate)) + 1 : 1;
   const progressPercentage = Math.min(Math.max((currentDay / cycleLength) * 100, 0), 100);
   const radius = 130;
   const circumference = 2 * Math.PI * radius;
