@@ -7,6 +7,7 @@ export class UsersService {
       select: {
         id: true,
         email: true,
+        name: true,
         isVerified: true,
         createdAt: true,
         settings: true,

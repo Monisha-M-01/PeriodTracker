@@ -31,6 +31,7 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      name: user.name,
       isVerified: user.isVerified,
     };
   }
@@ -59,7 +60,7 @@ export class AuthService {
     });
 
     return {
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, name: user.name },
       accessToken,
       refreshToken
     };
