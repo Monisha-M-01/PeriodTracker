@@ -21,6 +21,7 @@ export default function LearnMoreScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [displayLimit, setDisplayLimit] = useState(15);
 
   const debouncedSearch = useDebounce(searchQuery, 250);
 
@@ -44,6 +45,12 @@ export default function LearnMoreScreen() {
 
     return filtered;
   }, [activeSection, activeCategory, debouncedSearch]);
+
+  const paginatedArticles = filteredArticles.slice(0, displayLimit);
+
+  useEffect(() => {
+    setDisplayLimit(15);
+  }, [debouncedSearch, activeSection, activeCategory]);
 
   const selectedArticle = SAMPLE_ARTICLES.find(a => a.id === selectedArticleId);
 
@@ -191,9 +198,29 @@ export default function LearnMoreScreen() {
         </div>
       )}
 
-      <div className={cn("space-y-4 transition-opacity duration-200", isPending && "opacity-50 pointer-events-none")}>
+      <div className="space-y-4">
         <AnimatePresence mode="wait">
-          {filteredArticles.length === 0 ? (
+          {isPending ? (
+            <motion.div
+              key="skeleton"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.1 } }}
+              className="space-y-4"
+            >
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="bg-card p-4 rounded-3xl border border-muted/20 animate-pulse flex items-start space-x-4">
+                  <div className="w-16 h-16 rounded-2xl bg-muted/40"></div>
+                  <div className="flex-1 space-y-2.5 py-1">
+                    <div className="h-3.5 bg-muted/40 rounded w-1/4"></div>
+                    <div className="h-4 bg-muted/40 rounded w-3/4"></div>
+                    <div className="h-3.5 bg-muted/40 rounded w-full mt-2"></div>
+                    <div className="h-3.5 bg-muted/40 rounded w-5/6"></div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          ) : filteredArticles.length === 0 ? (
             <motion.div 
               key="empty"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -204,7 +231,7 @@ export default function LearnMoreScreen() {
               <p className="text-[15px]">No articles found for "{searchQuery}" — try a different word.</p>
             </motion.div>
           ) : (
-            filteredArticles.map(article => (
+            paginatedArticles.map(article => (
               article.type === 'OFFICIAL' ? (
                 <motion.a
                   initial={{ opacity: 0, y: 20 }}
@@ -276,6 +303,21 @@ export default function LearnMoreScreen() {
             ))
           )}
         </AnimatePresence>
+
+        {!isPending && filteredArticles.length > displayLimit && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="pt-4 pb-8 flex justify-center"
+          >
+            <button
+              onClick={() => setDisplayLimit(d => d + 15)}
+              className="px-6 py-2.5 bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full text-sm font-medium transition-colors"
+            >
+              Load more articles
+            </button>
+          </motion.div>
+        )}
       </div>
     </div>
   );
