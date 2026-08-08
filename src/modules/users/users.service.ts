@@ -19,6 +19,21 @@ export class UsersService {
     return user;
   }
 
+  static async updateProfile(userId: string, data: { name?: string }) {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        isVerified: true,
+        createdAt: true,
+      },
+    });
+    return user;
+  }
+
   static async updateSettings(userId: string, data: any) {
     const settings = await prisma.userSettings.upsert({
       where: { userId },

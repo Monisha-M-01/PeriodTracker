@@ -15,3 +15,8 @@ export const updateSettingsFn = async (data: Partial<UserSettings>) => {
   const res = await apiClient.patch<ApiResponse<UserSettings>>('/users/me/settings', data);
   return res.data;
 };
+
+export const updateProfileFn = async (data: { name: string }) => {
+  const res = await apiClient.patch<ApiResponse<any>>('/users/me', data);
+  return res.data;
+};

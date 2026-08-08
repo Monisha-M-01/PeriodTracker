@@ -9,6 +9,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
+      workbox: {
+        importScripts: ['custom-sw.js'],
+      },
       manifest: {
         name: 'Ritvi',
         short_name: 'Ritvi',

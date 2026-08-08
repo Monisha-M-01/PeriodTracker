@@ -117,11 +117,86 @@ function PrivacyDialog({ onClose }: any) {
   );
 }
 
+function NotificationsDialog({ isEnabled, onToggle, onClose }: any) {
+  const [loading, setLoading] = React.useState(false);
+
+  const handleEnable = async () => {
+    setLoading(true);
+    await onToggle(true);
+    setLoading(false);
+    onClose();
+  };
+
+  const handleDisable = async () => {
+    setLoading(true);
+    await onToggle(false);
+    setLoading(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="glass-card bg-card/95 rounded-[32px] p-6 w-full max-w-sm space-y-6 shadow-2xl border border-white/20"
+      >
+        <div className="flex justify-center mb-2">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+            <Bell className="w-8 h-8 text-primary" />
+          </div>
+        </div>
+        <h3 className="text-xl font-serif font-bold text-foreground text-center">Push Notifications</h3>
+        
+        {isEnabled ? (
+          <>
+            <p className="text-sm text-muted-foreground text-center">
+              You are currently receiving gentle nudges for period reminders and daily check-ins.
+            </p>
+            <div className="flex justify-between space-x-3 pt-4">
+              <button onClick={onClose} className="flex-1 px-4 py-3 font-medium text-muted-foreground hover:bg-muted/10 rounded-xl transition-colors">Close</button>
+              <button 
+                onClick={handleDisable} 
+                disabled={loading}
+                className="flex-1 bg-destructive/10 text-destructive px-4 py-3 rounded-xl font-medium hover:bg-destructive/20 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Disabling...' : 'Turn Off'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground text-center">
+              Want a gentle nudge before your period and for daily check-ins? Turn on notifications.
+            </p>
+            <div className="flex justify-between space-x-3 pt-4">
+              <button onClick={onClose} className="flex-1 px-4 py-3 font-medium text-muted-foreground hover:bg-muted/10 rounded-xl transition-colors">Maybe Later</button>
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
+                onClick={handleEnable} 
+                disabled={loading}
+                className="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium shadow-md shadow-primary/20 disabled:opacity-50"
+              >
+                {loading ? 'Enabling...' : 'Enable'}
+              </motion.button>
+            </div>
+          </>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const { login, logout, user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [editingKey, setEditingKey] = React.useState<string | null>(null);
+  
+  const [notificationStatus, setNotificationStatus] = React.useState<NotificationPermission>(
+    'Notification' in window ? Notification.permission : 'default'
+  );
 
   const handleLogout = async () => {
     await logout();
@@ -140,17 +215,59 @@ export default function SettingsPage() {
     }
   });
 
+  const handleToggleNotifications = async (enable: boolean) => {
+    if (enable) {
+      const permission = await Notification.requestPermission();
+      setNotificationStatus(permission);
+      if (permission === 'granted') {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY,
+          });
+          // Note: we dynamically import to avoid cyclic or top-level import issues if not set up
+          const { subscribeToPush, unsubscribeFromPush } = await import('../../api/notifications.api');
+          await subscribeToPush(subscription);
+          mutate({ reminderNotificationsEnabled: true });
+        } catch (err) {
+          console.error("Failed to subscribe to push", err);
+        }
+      }
+    } else {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          const { unsubscribeFromPush } = await import('../../api/notifications.api');
+          await unsubscribeFromPush(subscription.endpoint);
+          await subscription.unsubscribe();
+        }
+        mutate({ reminderNotificationsEnabled: false });
+      } catch (err) {
+        console.error("Failed to unsubscribe", err);
+      }
+    }
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-full min-h-[50vh]"><Spinner size={32} /></div>;
   }
 
   const settings = settingsData?.data;
+  const isNotificationsEnabled = settings?.reminderNotificationsEnabled && notificationStatus === 'granted';
 
   const SETTING_GROUPS: any[] = [
     {
       title: "Account",
       items: [
-        { id: 'notifications', label: 'Notification preferences', icon: Bell, value: settings?.reminderNotificationsEnabled ? 'On' : 'Off' },
+        { 
+          id: 'notifications', 
+          label: 'Notification preferences', 
+          icon: Bell, 
+          value: isNotificationsEnabled ? 'On' : 'Off',
+          action: () => setEditingKey('notifications')
+        },
       ]
     },
     {
@@ -306,6 +423,14 @@ export default function SettingsPage() {
 
         {editingKey === 'privacy' && (
           <PrivacyDialog onClose={() => setEditingKey(null)} />
+        )}
+
+        {editingKey === 'notifications' && (
+          <NotificationsDialog 
+            isEnabled={isNotificationsEnabled}
+            onToggle={handleToggleNotifications}
+            onClose={() => setEditingKey(null)}
+          />
         )}
       </AnimatePresence>
     </div>

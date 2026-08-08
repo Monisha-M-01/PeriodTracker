@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getPredictionsFn } from '../../api/cycles.api';
 import { getPeriodsFn } from '../../api/period.api';
 import { getCheckInsFn } from '../../api/checkins.api';
+import { updateProfileFn } from '../../api/settings.api';
 import { Card, CardContent } from '../../components/ui/Card';
 import { format, subDays, isSameDay, startOfDay, endOfDay } from 'date-fns';
 import { User, Mail, Calendar, Activity, Trophy, Flame, Edit2 } from 'lucide-react';
@@ -45,7 +46,7 @@ function ProfileEditDialog({ user, onSave, onClose }: any) {
 }
 
 export default function ProfileScreen() {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const [isEditingProfile, setIsEditingProfile] = React.useState(false);
   const today = new Date();
   const fromDate = startOfDay(subDays(today, 180)).toISOString();
@@ -164,12 +165,15 @@ export default function ProfileScreen() {
         {isEditingProfile && (
           <ProfileEditDialog 
             user={user}
-            onSave={(val: any) => {
-              login('dummy-token', { 
-                ...(user || { id: 'dummy', isVerified: true, email: 'guest@example.com' }), 
-                name: val.name
-              });
-              setIsEditingProfile(false);
+            onSave={async (val: any) => {
+              try {
+                await updateProfileFn({ name: val.name });
+                updateUser({ name: val.name });
+              } catch (e) {
+                console.error("Failed to update profile", e);
+              } finally {
+                setIsEditingProfile(false);
+              }
             }}
             onClose={() => setIsEditingProfile(false)}
           />

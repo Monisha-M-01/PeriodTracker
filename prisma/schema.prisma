@@ -13,6 +13,7 @@ generator client {
 model User {
   id                   String        @id @default(uuid())
   email                String        @unique
+  name                 String?
   passwordHash         String
   isVerified           Boolean       @default(false)
   verificationToken    String?
@@ -27,6 +28,7 @@ model User {
   periodLogs           PeriodLog[]
   symptomLogs          SymptomLog[]
   dailyCheckIns        DailyCheckIn[]
+  pushSubscriptions    PushSubscription[]
 
   @@map("users")
   @@index([email])
@@ -125,4 +127,21 @@ model DailyCheckIn {
 
   @@map("daily_checkins")
   @@unique([userId, date])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // The Web Push subscription object data
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("push_subscriptions")
+  @@index([userId])
 }

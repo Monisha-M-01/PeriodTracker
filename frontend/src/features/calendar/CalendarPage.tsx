@@ -8,7 +8,7 @@ import { getCheckInsFn } from '../../api/checkins.api';
 import { Card, CardHeader, CardTitle, CardContent, InteractiveCard } from '../../components/ui/Card';
 import { format, isSameDay, subDays, addDays, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { Droplets, Activity, Utensils, Heart } from 'lucide-react';
+import { Droplets } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '../../hooks/useHaptics';
 
@@ -22,10 +22,6 @@ export default function CalendarPage() {
 
   const { data: predictionsData, isLoading: isLoadingPreds } = useQuery({ queryKey: ['predictions'], queryFn: getPredictionsFn });
   const { data: periodsData, isLoading: isLoadingPeriods } = useQuery({ queryKey: ['periods'], queryFn: getPeriodsFn });
-  const { data: checkInsData, isLoading: isLoadingCheckIns } = useQuery({ 
-    queryKey: ['checkins', fromDate, toDate], 
-    queryFn: () => getCheckInsFn(fromDate, toDate) 
-  });
 
   const toggleMutation = useMutation({
     mutationFn: togglePeriodDayFn,
@@ -35,7 +31,7 @@ export default function CalendarPage() {
     }
   });
 
-  if (isLoadingPreds || isLoadingPeriods || isLoadingCheckIns) {
+  if (isLoadingPreds || isLoadingPeriods) {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold tracking-tight text-primary">Calendar</h1>
@@ -76,21 +72,6 @@ export default function CalendarPage() {
   const periodSpan = selectedPeriodLog
     ? Math.round((new Date(selectedPeriodLog.endDate || selectedPeriodLog.startDate).getTime() - new Date(selectedPeriodLog.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1
     : 0;
-
-  // Find checkin for selected date
-  const selectedCheckIn = checkInsData?.data?.find(c => selectedDate && isSameDay(new Date(c.date), selectedDate));
-
-  let parsedSymptoms: string[] = [];
-  let parsedMoods: string[] = [];
-  let parsedWorkouts: any[] = [];
-  let parsedDiet: any = null;
-
-  if (selectedCheckIn) {
-    if (selectedCheckIn.symptoms) parsedSymptoms = JSON.parse(selectedCheckIn.symptoms);
-    if (selectedCheckIn.moodString) parsedMoods = JSON.parse(selectedCheckIn.moodString);
-    if (selectedCheckIn.workouts) parsedWorkouts = JSON.parse(selectedCheckIn.workouts);
-    if (selectedCheckIn.dietDetails) parsedDiet = JSON.parse(selectedCheckIn.dietDetails);
-  }
 
   // Custom styling for DayPicker
   const modifiers = {
@@ -231,53 +212,6 @@ export default function CalendarPage() {
                   </div>
                 </section>
 
-                <section>
-                  <h3 className="font-semibold text-foreground flex items-center mb-3">
-                    <Heart className="w-5 h-5 text-rose-500 mr-2" />
-                    Daily Check-in
-                  </h3>
-                  {!selectedCheckIn ? (
-                    <p className="text-sm text-muted-foreground">No check-in logged.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {parsedMoods.length > 0 && (
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Mood</p>
-                          <div className="flex flex-wrap gap-2">
-                            {parsedMoods.map(m => (
-                              <span key={m} className="text-sm bg-muted px-2 py-1 rounded-md">{m}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {parsedSymptoms.length > 0 && (
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Symptoms</p>
-                          <div className="flex flex-wrap gap-2">
-                            {parsedSymptoms.map(s => (
-                              <span key={s} className="text-sm bg-muted px-2 py-1 rounded-md">{s}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {parsedWorkouts.length > 0 && (
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Workout</p>
-                          <div className="space-y-2">
-                            {parsedWorkouts.map((w, i) => (
-                              <div key={i} className="text-sm bg-muted px-3 py-2 rounded-md flex justify-between items-center">
-                                <span>{w.type} <span className="text-muted-foreground ml-1">({w.intensity})</span></span>
-                                <span className="font-medium">{w.duration} min</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </section>
               </>
             )}
           </CardContent>

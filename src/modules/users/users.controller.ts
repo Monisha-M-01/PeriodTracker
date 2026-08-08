@@ -13,6 +13,17 @@ export class UsersController {
     }
   }
 
+  static async updateProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.userId;
+      // We only allow updating the name for now
+      const profile = await UsersService.updateProfile(userId, { name: req.body.name });
+      sendResponse(res, 200, profile);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async updateSettings(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.userId;
