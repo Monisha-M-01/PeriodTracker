@@ -10,17 +10,17 @@ import { AnimatePresence } from 'framer-motion';
 import LoginPage from './features/auth/LoginPage';
 import SignupPage from './features/auth/SignupPage';
 
-const TodayScreen = React.lazy(() => import('./features/today/TodayScreen'));
-const InsightsScreen = React.lazy(() => import('./features/insights/InsightsScreen'));
-const LearnMoreScreen = React.lazy(() => import('./features/learn/LearnMoreScreen'));
-const RelaxScreen = React.lazy(() => import('./features/relax/RelaxScreen'));
-const SettingsPage = React.lazy(() => import('./features/settings/SettingsPage'));
-const CheckInPage = React.lazy(() => import('./features/checkin/CheckInPage'));
-const LogPeriodPage = React.lazy(() => import('./features/logging/LogPeriodPage'));
-const LogSymptomPage = React.lazy(() => import('./features/logging/LogSymptomPage'));
-const ProfileScreen = React.lazy(() => import('./features/profile/ProfileScreen'));
-const CalendarPage = React.lazy(() => import('./features/calendar/CalendarPage'));
-const OnboardingPage = React.lazy(() => import('./features/onboarding/OnboardingPage'));
+import TodayScreen from './features/today/TodayScreen';
+import InsightsScreen from './features/insights/InsightsScreen';
+import LearnMoreScreen from './features/learn/LearnMoreScreen';
+import RelaxScreen from './features/relax/RelaxScreen';
+import SettingsPage from './features/settings/SettingsPage';
+import CheckInPage from './features/checkin/CheckInPage';
+import LogPeriodPage from './features/logging/LogPeriodPage';
+import LogSymptomPage from './features/logging/LogSymptomPage';
+import ProfileScreen from './features/profile/ProfileScreen';
+import CalendarPage from './features/calendar/CalendarPage';
+import OnboardingPage from './features/onboarding/OnboardingPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
