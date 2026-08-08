@@ -39,11 +39,15 @@ apiClient.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
-          withCredentials: true, // Send refresh cookie
+        const storedRefreshToken = localStorage.getItem('refreshToken');
+        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken: storedRefreshToken }, {
+          withCredentials: true, // Send refresh cookie (fallback)
         });
 
         if (data.success && data.data.accessToken) {
+          if (data.data.refreshToken) {
+            localStorage.setItem('refreshToken', data.data.refreshToken);
+          }
           setAccessToken(data.data.accessToken);
           // Update original request header
           originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;

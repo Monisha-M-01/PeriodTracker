@@ -31,6 +31,9 @@ export default function LoginPage() {
     mutationFn: loginFn,
     onSuccess: (data) => {
       if (data.success) {
+        if (data.data.refreshToken) {
+          localStorage.setItem('refreshToken', data.data.refreshToken);
+        }
         login(data.data.accessToken, data.data.user);
         toast('Logged in successfully', 'success');
         navigate('/');

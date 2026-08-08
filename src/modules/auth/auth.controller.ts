@@ -29,6 +29,7 @@ export class AuthController {
       sendResponse(res, 200, {
         user: result.user,
         accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       });
     } catch (error) {
       next(error);
@@ -43,6 +44,14 @@ export class AuthController {
       }
 
       const result = await AuthService.refreshAccessToken(token);
+      
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        maxAge: CONSTANTS.JWT.REFRESH_COOKIE_MAX_AGE,
+      });
+
       sendResponse(res, 200, result);
     } catch (error) {
       next(error);

@@ -77,7 +77,7 @@ export class AuthService {
     const payload = { userId: dbToken.userId };
     const accessToken = generateAccessToken(payload);
 
-    return { accessToken };
+    return { accessToken, refreshToken: dbToken.token };
   }
 
   static async logout(token: string) {
