@@ -76,8 +76,8 @@ export default function DietTips() {
   if (mostRecentPeriod) {
     const diff = differenceInCalendarDays(today, new Date(mostRecentPeriod.startDate)) + 1;
     currentCycleDay = Math.max(1, Math.min(diff, 28)); // Cap at 28 for tips array
-  } else if (predictions?.lastPeriodStartDate) {
-    const diff = differenceInCalendarDays(today, new Date(predictions.lastPeriodStartDate)) + 1;
+  } else if (predictionsData?.data?.history?.lastPeriodStartDate) {
+    const diff = differenceInCalendarDays(today, new Date(predictionsData.data.history.lastPeriodStartDate)) + 1;
     currentCycleDay = Math.max(1, Math.min(diff, 28)); // Cap at 28 for tips array
   }
 

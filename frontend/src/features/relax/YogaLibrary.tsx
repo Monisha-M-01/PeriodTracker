@@ -151,8 +151,8 @@ export default function YogaLibrary() {
 
   if (mostRecentPeriod) {
     currentCycleDay = differenceInCalendarDays(today, new Date(mostRecentPeriod.startDate)) + 1;
-  } else if (predictionsData?.data?.predictions?.lastPeriodStartDate) {
-    currentCycleDay = differenceInCalendarDays(today, new Date(predictionsData.data.predictions.lastPeriodStartDate)) + 1;
+  } else if (predictionsData?.data?.history?.lastPeriodStartDate) {
+    currentCycleDay = differenceInCalendarDays(today, new Date(predictionsData.data.history.lastPeriodStartDate)) + 1;
   }
 
   // Determine current phase based on typical cycle lengths

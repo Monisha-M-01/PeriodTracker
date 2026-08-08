@@ -166,7 +166,7 @@ export default function ProfileScreen() {
             user={user}
             onSave={(val: any) => {
               login('dummy-token', { 
-                ...(user || { id: 'dummy', isVerified: true }), 
+                ...(user || { id: 'dummy', isVerified: true, email: 'guest@example.com' }), 
                 name: val.name
               });
               setIsEditingProfile(false);

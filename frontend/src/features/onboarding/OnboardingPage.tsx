@@ -61,7 +61,7 @@ export default function OnboardingPage() {
     out: { opacity: 0, x: -20 }
   };
 
-  const pageTransition = {
+  const pageTransition: any = {
     type: 'tween',
     ease: 'anticipate',
     duration: 0.5
@@ -184,7 +184,7 @@ export default function OnboardingPage() {
                         caption: { color: '#4a4a4a', fontWeight: 'bold', fontFamily: 'serif' },
                         head_cell: { color: '#a0a0a0', fontWeight: 'normal', fontSize: '0.8rem' },
                         day: { borderRadius: '100%' }
-                      }}
+                      } as any}
                     />
                   </div>
                 </div>

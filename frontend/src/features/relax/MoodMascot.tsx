@@ -50,7 +50,7 @@ export default function MoodMascot() {
   const activeMood = isHappy ? 'Excited' : baseMood;
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    let timeout: any;
     if (petIntensity > 0) {
       timeout = setTimeout(() => {
         setPetIntensity(prev => Math.max(0, prev - 10)); // Decay intensity

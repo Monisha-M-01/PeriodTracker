@@ -32,7 +32,7 @@ export default function HistoryPage() {
     });
   }
 
-  const containerVariants = {
+  const containerVariants: any = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -40,7 +40,7 @@ export default function HistoryPage() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: any = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
@@ -87,7 +87,7 @@ export default function HistoryPage() {
                     contentStyle={{ borderRadius: '16px', border: '1px solid rgba(193,95,60,0.2)', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', backgroundColor: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)' }}
                     itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
                     labelStyle={{ color: '#6b7280', fontSize: '12px', marginBottom: '4px' }}
-                    formatter={(val: number) => [`${val} days`, 'Cycle Length']}
+                    formatter={(val: any) => [`${val} days`, 'Cycle Length'] as any}
                   />
                   <Line 
                     type="monotone" 

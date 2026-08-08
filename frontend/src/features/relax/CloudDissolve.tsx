@@ -76,7 +76,7 @@ export default function CloudDissolve({ onExit }: { onExit: () => void }) {
                 x: { repeat: Infinity, duration: cloud.speed, ease: "linear" },
                 opacity: { duration: 1 },
                 exit: { duration: 1.5, ease: "easeOut" }
-              }}
+              } as any}
               className="absolute text-white drop-shadow-md outline-none"
               style={{ top: cloud.y, scale: cloud.scale }}
               onClick={() => handleCloudClick(cloud.id)}
