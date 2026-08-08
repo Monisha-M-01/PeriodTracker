@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useTransition } from 'react';
 import { Clock, Search, ExternalLink, ShieldCheck, Heart, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
@@ -20,6 +20,7 @@ export default function LearnMoreScreen() {
   const [activeCategory, setActiveCategory] = useState(CATEGORIES.Understand[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const debouncedSearch = useDebounce(searchQuery, 250);
 
@@ -48,8 +49,10 @@ export default function LearnMoreScreen() {
 
   // When changing section, reset category to "All ..."
   const handleSectionChange = (section: 'Understand' | 'Manage' | 'Hygiene') => {
-    setActiveSection(section);
-    setActiveCategory(CATEGORIES[section][0]);
+    startTransition(() => {
+      setActiveSection(section);
+      setActiveCategory(CATEGORIES[section][0]);
+    });
   };
 
   if (selectedArticle && selectedArticle.type === 'INTERNAL') {
@@ -162,7 +165,11 @@ export default function LearnMoreScreen() {
               {CATEGORIES[activeSection].map((category) => (
                 <button
                   key={category}
-                  onClick={() => setActiveCategory(category)}
+                  onClick={() => {
+                    startTransition(() => {
+                      setActiveCategory(category);
+                    });
+                  }}
                   className={cn(
                     "whitespace-nowrap px-4 py-2 rounded-full text-[15px] font-medium transition-all",
                     activeCategory === category
@@ -184,8 +191,8 @@ export default function LearnMoreScreen() {
         </div>
       )}
 
-      <motion.div layout className="space-y-4">
-        <AnimatePresence mode="popLayout">
+      <div className={cn("space-y-4 transition-opacity duration-200", isPending && "opacity-50 pointer-events-none")}>
+        <AnimatePresence mode="wait">
           {filteredArticles.length === 0 ? (
             <motion.div 
               key="empty"
@@ -200,7 +207,6 @@ export default function LearnMoreScreen() {
             filteredArticles.map(article => (
               article.type === 'OFFICIAL' ? (
                 <motion.a
-                  layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
@@ -236,7 +242,6 @@ export default function LearnMoreScreen() {
                 </motion.a>
               ) : (
                 <motion.button
-                  layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
@@ -271,7 +276,7 @@ export default function LearnMoreScreen() {
             ))
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </div>
   );
 }
