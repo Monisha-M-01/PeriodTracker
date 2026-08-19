@@ -182,3 +182,22 @@
 .rdp-day_selected:hover {
   transform: scale(1.15);
 }
+
+.rdp-day_fertile {
+  background-color: rgb(124 131 99 / 0.2) !important;
+  color: var(--color-secondary) !important;
+  font-weight: 600 !important;
+}
+
+.rdp-day_predictedPeriod {
+  background-color: rgb(139 111 92 / 0.2) !important;
+  color: var(--color-muted-foreground) !important;
+  border: 2px dashed var(--color-primary) !important;
+}
+
+.rdp-day_loggedPeriod {
+  background-color: var(--color-primary) !important;
+  color: var(--color-primary-foreground) !important;
+  font-weight: bold !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}

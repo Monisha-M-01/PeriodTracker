@@ -101,11 +101,6 @@ export default function CalendarPage() {
     }) || [],
   };
 
-  const modifiersClassNames = {
-    fertile: "rdp-fertile bg-secondary/20 text-secondary-foreground font-semibold",
-    predictedPeriod: "rdp-predicted bg-muted/20 text-muted-foreground border-2 border-dashed border-primary",
-    loggedPeriod: "rdp-logged bg-primary text-primary-foreground font-bold shadow-md",
-  };
 
   return (
     <div className="space-y-6 animate-in fade-in pb-24">
@@ -137,7 +132,6 @@ export default function CalendarPage() {
                 setSelectedDate(d);
               }}
               modifiers={modifiers}
-              modifiersClassNames={modifiersClassNames}
               className="border-none p-0"
             />
           </motion.div>
