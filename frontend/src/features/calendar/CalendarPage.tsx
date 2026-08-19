@@ -43,12 +43,16 @@ export default function CalendarPage() {
     );
   }
 
-  // Find existing period log for selected date
   const selectedPeriodLog = periodsData?.data?.find(p => {
-    if (!selectedDate) return false;
-    const start = startOfDay(new Date(p.startDate));
-    const end = p.endDate ? endOfDay(new Date(p.endDate)) : endOfDay(new Date(p.startDate));
-    return isWithinInterval(selectedDate, { start, end });
+    if (!selectedDate || !p.startDate) return false;
+    try {
+      const start = startOfDay(new Date(p.startDate));
+      const end = p.endDate ? endOfDay(new Date(p.endDate)) : endOfDay(new Date(p.startDate));
+      if (start > end) return false; // Prevent date-fns crash if end is before start
+      return isWithinInterval(selectedDate, { start, end });
+    } catch (e) {
+      return false; // Prevent crash on invalid dates
+    }
   });
 
   const handleTogglePeriod = (isPeriod: boolean) => {
@@ -84,17 +88,23 @@ export default function CalendarPage() {
       { from: new Date(predictionsData.data.predictions.nextPeriodStart), to: new Date(predictionsData.data.predictions.nextPeriodEnd || predictionsData.data.predictions.nextPeriodStart) }
     ] : [],
     loggedPeriod: periodsData?.data?.map(p => {
-      if (p.endDate) {
-        return { from: new Date(p.startDate), to: new Date(p.endDate) };
+      try {
+        if (p.endDate) {
+          const start = new Date(p.startDate);
+          const end = new Date(p.endDate);
+          return start > end ? start : { from: start, to: end };
+        }
+        return new Date(p.startDate);
+      } catch (e) {
+        return new Date();
       }
-      return new Date(p.startDate);
     }) || [],
   };
 
-  const modifiersStyles = {
-    fertile: { backgroundColor: '#DFEEEA', color: '#1F2937' },
-    predictedPeriod: { backgroundColor: '#FDE8E8', color: '#E06C75' },
-    loggedPeriod: { backgroundColor: '#E06C75', color: '#FFFFFF' },
+  const modifiersClassNames = {
+    fertile: "rdp-fertile bg-secondary/20 text-secondary-foreground font-semibold",
+    predictedPeriod: "rdp-predicted bg-muted/20 text-muted-foreground border-2 border-dashed border-primary",
+    loggedPeriod: "rdp-logged bg-primary text-primary-foreground font-bold shadow-md",
   };
 
   return (
@@ -126,9 +136,32 @@ export default function CalendarPage() {
                 triggerHaptic('selection');
                 setSelectedDate(d);
               }}
-            modifiers={modifiers}
-            modifiersStyles={modifiersStyles}
-            className="border-none"
+              modifiers={modifiers}
+              modifiersClassNames={modifiersClassNames}
+              className="border-none p-0"
+              classNames={{
+                root: "w-full flex justify-center",
+                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                month: "space-y-4",
+                caption: "flex justify-center pt-1 relative items-center",
+                caption_label: "text-sm font-medium",
+                nav: "space-x-1 flex items-center",
+                nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 transition-opacity",
+                nav_button_previous: "absolute left-1",
+                nav_button_next: "absolute right-1",
+                table: "w-full border-collapse space-y-1",
+                head_row: "flex w-full",
+                head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
+                row: "flex w-full mt-2",
+                cell: "text-center text-sm relative p-0 hover:bg-muted/50 rounded-full focus-within:relative focus-within:z-20 w-9 h-9 flex items-center justify-center",
+                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 rounded-full hover:bg-muted transition-colors",
+                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground shadow-md scale-110",
+                day_today: "bg-accent text-accent-foreground font-bold",
+                day_outside: "text-muted-foreground opacity-50",
+                day_disabled: "text-muted-foreground opacity-50",
+                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                day_hidden: "invisible",
+              }}
             />
           </motion.div>
 

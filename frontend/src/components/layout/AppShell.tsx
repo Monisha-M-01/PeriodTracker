@@ -89,21 +89,21 @@ export const AppShell: React.FC = () => {
       {/* Main Content Area */}
       <MeshBackground />
       <main className="flex-1 w-full max-w-3xl mx-auto p-4 md:p-8 relative">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-          >
-            <ErrorBoundary>
+        <ErrorBoundary>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+            >
               <Suspense fallback={<div className="flex justify-center p-20"><Spinner size={32} /></div>}>
                 <Outlet />
               </Suspense>
-            </ErrorBoundary>
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        </ErrorBoundary>
       </main>
 
       {/* Mobile Bottom Navigation */}
