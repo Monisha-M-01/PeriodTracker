@@ -131,6 +131,7 @@ export default function CalendarPage() {
                 setSelectedDate(prev => prev ? addDays(prev, 1) : new Date());
               }
             }}
+            className="w-full max-w-[320px] mx-auto flex justify-center"
           >
             <DayPicker
               mode="single"
