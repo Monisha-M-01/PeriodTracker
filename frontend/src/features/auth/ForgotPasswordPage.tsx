@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
     mutationFn: forgotPasswordFn,
     onSuccess: (data) => {
       setIsSubmitted(true);
-      toast(data.data?.message || 'Reset link sent', 'success');
+      toast(data.message || 'Reset link sent', 'success');
     },
     onError: (error: any) => {
       toast(error.response?.data?.error || 'Failed to request reset link', 'error');

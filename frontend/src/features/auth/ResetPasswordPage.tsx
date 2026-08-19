@@ -33,7 +33,7 @@ export default function ResetPasswordPage() {
   const mutation = useMutation({
     mutationFn: resetPasswordFn,
     onSuccess: (data) => {
-      toast(data.data?.message || 'Password reset successfully', 'success');
+      toast(data.message || 'Password reset successfully', 'success');
       navigate('/login');
     },
     onError: (error: any) => {
