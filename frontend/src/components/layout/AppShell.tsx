@@ -1,6 +1,6 @@
 import React, { useEffect, Suspense } from 'react';
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
-import { Home, BarChart2, BookOpen, Wind, Settings } from 'lucide-react';
+import { Home, BarChart2, BookOpen, Wind, Settings, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSettingsFn } from '../../api/settings.api';
@@ -33,7 +33,8 @@ export const AppShell: React.FC = () => {
   }
 
   const navItems = [
-    { label: 'Today', icon: Home, path: '/' },
+    { label: 'Today', icon: Home, path: '/today' },
+    { label: 'Calendar', icon: Calendar, path: '/calendar' },
     { label: 'Insights', icon: BarChart2, path: '/insights' },
     { label: 'Learn', icon: BookOpen, path: '/learn' },
     { label: 'Relax', icon: Wind, path: '/relax' },

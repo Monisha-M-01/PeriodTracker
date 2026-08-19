@@ -48,19 +48,18 @@ export default function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/onboarding" element={<OnboardingPage />} />
                 
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<AppShell />}>
-                    <Route path="/" element={<TodayScreen />} />
-                    <Route path="/insights" element={<InsightsScreen />} />
-                    <Route path="/learn" element={<LearnMoreScreen />} />
-                    <Route path="/relax" element={<RelaxScreen />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/profile" element={<ProfileScreen />} />
-                    <Route path="/calendar" element={<CalendarPage />} />
-                    <Route path="/checkin" element={<CheckInPage />} />
-                    <Route path="/log-period" element={<LogPeriodPage />} />
-                    <Route path="/log-symptom" element={<LogSymptomPage />} />
-                  </Route>
+                <Route element={<AppShell />}>
+                  <Route path="/" element={<Navigate to="/today" replace />} />
+                  <Route path="/calendar" element={<CalendarPage />} />
+                  <Route path="/today" element={<TodayScreen />} />
+                  <Route path="/insights" element={<InsightsScreen />} />
+                  <Route path="/learn" element={<LearnMoreScreen />} />
+                  <Route path="/relax" element={<RelaxScreen />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/profile" element={<ProfileScreen />} />
+                  <Route path="/checkin" element={<CheckInPage />} />
+                  <Route path="/log-period" element={<LogPeriodPage />} />
+                  <Route path="/log-symptom" element={<LogSymptomPage />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" replace />} />
