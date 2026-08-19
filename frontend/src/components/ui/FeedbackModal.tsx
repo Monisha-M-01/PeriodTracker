@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { submitFeedbackFn, FeedbackData } from '../../api/feedback.api';
+import { submitFeedbackFn, type FeedbackData } from '../../api/feedback.api';
 import { Button } from './Button';
 
 const QUESTIONS = [
