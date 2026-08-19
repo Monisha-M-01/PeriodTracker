@@ -9,8 +9,6 @@ import { SplashScreen } from './components/ui/SplashScreen';
 import { AnimatePresence } from 'framer-motion';
 const LoginPage = React.lazy(() => import('./features/auth/LoginPage'));
 const SignupPage = React.lazy(() => import('./features/auth/SignupPage'));
-const ForgotPasswordPage = React.lazy(() => import('./features/auth/ForgotPasswordPage'));
-const ResetPasswordPage = React.lazy(() => import('./features/auth/ResetPasswordPage'));
 
 const TodayScreen = React.lazy(() => import('./features/today/TodayScreen'));
 const InsightsScreen = React.lazy(() => import('./features/insights/InsightsScreen'));
@@ -48,8 +46,6 @@ export default function App() {
               <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/onboarding" element={<OnboardingPage />} />
                 
                 <Route element={<ProtectedRoute />}>

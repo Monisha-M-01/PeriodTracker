@@ -13,11 +13,6 @@ const envSchema = z.object({
   VAPID_PUBLIC_KEY: z.string().min(1),
   VAPID_PRIVATE_KEY: z.string().min(1),
   VAPID_SUBJECT: z.string().min(1),
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.string().optional().transform(val => val ? Number(val) : undefined),
-  SMTP_USER: z.string().optional(),
-  SMTP_PASS: z.string().optional(),
-  SMTP_FROM: z.string().optional().default('noreply@periodtracker.com'),
 });
 
 const envVars = envSchema.safeParse(process.env);
