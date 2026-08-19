@@ -141,6 +141,12 @@ export default function CalendarPage() {
                 setSelectedDate(d);
               }}
               modifiers={modifiers}
+              modifiersClassNames={{
+                selected: 'rdp-day_selected',
+                fertile: 'rdp-day_fertile',
+                predictedPeriod: 'rdp-day_predictedPeriod',
+                loggedPeriod: 'rdp-day_loggedPeriod'
+              }}
               className="border-none p-0"
             />
           </motion.div>
