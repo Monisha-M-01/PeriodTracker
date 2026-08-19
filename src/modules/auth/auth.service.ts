@@ -84,4 +84,51 @@ export class AuthService {
   static async logout(token: string) {
     await prisma.refreshToken.deleteMany({ where: { token } });
   }
+
+  static async forgotPassword(email: string) {
+    const user = await prisma.user.findUnique({ where: { email, deletedAt: null } });
+    if (!user) {
+      // Return success even if user not found to prevent email enumeration
+      return;
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetExpires,
+      }
+    });
+
+    const { emailService } = await import('../../services/email.service');
+    await emailService.sendPasswordResetEmail(user.email, resetToken);
+  }
+
+  static async resetPassword(token: string, newPassword: string) {
+    const user = await prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpires: { gt: new Date() },
+        deletedAt: null,
+      }
+    });
+
+    if (!user) {
+      throw { statusCode: 400, message: 'Invalid or expired password reset token' };
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      }
+    });
+  }
 }

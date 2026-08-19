@@ -10,5 +10,7 @@ router.post('/signup', authLimiter, validate(signupSchema), AuthController.signu
 router.post('/login', authLimiter, validate(loginSchema), AuthController.login);
 router.post('/refresh', AuthController.refresh);
 router.post('/logout', AuthController.logout);
+router.post('/forgot-password', authLimiter, AuthController.forgotPassword);
+router.post('/reset-password', authLimiter, AuthController.resetPassword);
 
 export default router;

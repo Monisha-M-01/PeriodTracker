@@ -70,4 +70,30 @@ export class AuthController {
       next(error);
     }
   }
+
+  static async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return sendResponse(res, 400, null, 'Email is required');
+      }
+      await AuthService.forgotPassword(email);
+      sendResponse(res, 200, { message: 'If that email is registered, a password reset link has been sent.' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token, password } = req.body;
+      if (!token || !password) {
+        return sendResponse(res, 400, null, 'Token and new password are required');
+      }
+      await AuthService.resetPassword(token, password);
+      sendResponse(res, 200, { message: 'Password has been reset successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
