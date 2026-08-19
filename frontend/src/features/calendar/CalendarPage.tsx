@@ -35,7 +35,7 @@ export default function CalendarPage() {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold tracking-tight text-primary">Calendar</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <Skeleton className="h-[400px] rounded-2xl" />
           <Skeleton className="h-[400px] rounded-2xl" />
         </div>
@@ -114,7 +114,7 @@ export default function CalendarPage() {
     <div className="space-y-6 animate-in fade-in pb-24">
       <h1 className="text-3xl font-bold tracking-tight text-primary">Calendar</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <InteractiveCard className="flex flex-col items-center p-4">
           <motion.div
             drag="x"
