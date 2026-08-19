@@ -78,27 +78,35 @@ export default function CalendarPage() {
     : 0;
 
   // Custom styling for DayPicker
+  const getValidDate = (dateStr?: string | null) => {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const fwStart = getValidDate(predictionsData?.data?.predictions?.fertileWindowStart);
+  const fwEnd = getValidDate(predictionsData?.data?.predictions?.fertileWindowEnd) || fwStart;
+  
+  const npStart = getValidDate(predictionsData?.data?.predictions?.nextPeriodStart);
+  const npEnd = getValidDate(predictionsData?.data?.predictions?.nextPeriodEnd) || npStart;
+
   const modifiers = {
-    fertile: predictionsData?.data?.predictions?.fertileWindowStart ? [
-      new Date(predictionsData.data.predictions.fertileWindowStart),
-      { from: new Date(predictionsData.data.predictions.fertileWindowStart), to: new Date(predictionsData.data.predictions.fertileWindowEnd || predictionsData.data.predictions.fertileWindowStart) }
-    ] : [],
-    predictedPeriod: predictionsData?.data?.predictions?.nextPeriodStart ? [
-      new Date(predictionsData.data.predictions.nextPeriodStart),
-      { from: new Date(predictionsData.data.predictions.nextPeriodStart), to: new Date(predictionsData.data.predictions.nextPeriodEnd || predictionsData.data.predictions.nextPeriodStart) }
-    ] : [],
-    loggedPeriod: periodsData?.data?.map(p => {
-      try {
-        if (p.endDate) {
-          const start = new Date(p.startDate);
-          const end = new Date(p.endDate);
-          return start > end ? start : { from: start, to: end };
+    fertile: fwStart ? [{ from: fwStart, to: fwEnd as Date }] : [],
+    predictedPeriod: npStart ? [{ from: npStart, to: npEnd as Date }] : [],
+    loggedPeriod: periodsData?.data?.reduce((acc, p) => {
+      const start = getValidDate(p.startDate);
+      if (!start) return acc;
+      
+      if (p.endDate) {
+        const end = getValidDate(p.endDate);
+        if (end) {
+          acc.push(start > end ? start : { from: start, to: end });
+          return acc;
         }
-        return new Date(p.startDate);
-      } catch (e) {
-        return new Date();
       }
-    }) || [],
+      acc.push(start);
+      return acc;
+    }, [] as any[]) || [],
   };
 
 
