@@ -70,6 +70,8 @@ export const FeedbackModal = () => {
   const [finalFeedback, setFinalFeedback] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [currentStep, setCurrentStep] = useState(0);
+
   useEffect(() => {
     const checkShouldShow = () => {
       const isCompleted = localStorage.getItem('feedbackCompleted');
@@ -88,7 +90,6 @@ export const FeedbackModal = () => {
       setIsOpen(true);
     };
 
-    // Slight delay to not interrupt immediate login navigation too jarringly
     const timer = setTimeout(checkShouldShow, 1500);
     return () => clearTimeout(timer);
   }, []);
@@ -97,9 +98,15 @@ export const FeedbackModal = () => {
     localStorage.setItem('feedbackSkippedAt', Date.now().toString());
     setIsOpen(false);
   };
+  
+  const handleNextStep = () => {
+    setCurrentStep(prev => prev + 1);
+  };
 
   const handleSubmit = async () => {
-    if (Object.keys(answers).length < 5) {
+    // Only require ratings to be present for the first 5 steps
+    const hasAllAnswers = QUESTIONS.every(q => answers[q.id]);
+    if (!hasAllAnswers) {
       alert('Please answer all 5 questions to submit.');
       return;
     }
@@ -133,6 +140,9 @@ export const FeedbackModal = () => {
 
   if (!isOpen) return null;
 
+  const isFinalStep = currentStep === QUESTIONS.length;
+  const currentQ = !isFinalStep ? QUESTIONS[currentStep] : null;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -158,88 +168,114 @@ export const FeedbackModal = () => {
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-8">
-              {QUESTIONS.map((q) => (
-                <div key={q.id} className="space-y-4">
-                  <p className="font-medium text-foreground text-lg">{q.text}</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {q.options.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt.label }))}
-                        className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
-                          answers[q.id] === opt.label 
-                            ? 'bg-primary border-primary text-primary-foreground shadow-md' 
-                            : 'bg-card border-primary/20 hover:bg-primary/5 hover:border-primary/40'
-                        }`}
+            <div className="p-6 flex-1 flex flex-col justify-center min-h-[300px]">
+              <AnimatePresence mode="wait">
+                {!isFinalStep && currentQ ? (
+                  <motion.div
+                    key={currentQ.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-6"
+                  >
+                    <p className="font-medium text-foreground text-xl leading-snug">{currentQ.text}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {currentQ.options.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => setAnswers(prev => ({ ...prev, [currentQ.id]: opt.label }))}
+                          className={`flex items-center gap-3 p-4 rounded-xl border text-left transition-all ${
+                            answers[currentQ.id] === opt.label 
+                              ? 'bg-primary border-primary text-primary-foreground shadow-md' 
+                              : 'bg-card border-primary/20 hover:bg-primary/5 hover:border-primary/40'
+                          }`}
+                        >
+                          <span className="text-2xl">{opt.emoji}</span>
+                          <span className="text-sm font-medium leading-tight">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {answers[currentQ.id] && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }} 
+                        animate={{ opacity: 1, height: 'auto' }} 
+                        className="bg-primary/5 rounded-xl p-5 mt-4 border border-primary/10"
                       >
-                        <span className="text-2xl">{opt.emoji}</span>
-                        <span className="text-sm font-medium leading-tight">{opt.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                        <p className="text-sm font-medium text-foreground mb-4">
+                          Do you want to write related to this question to improve?
+                        </p>
+                        <div className="flex gap-3 mb-4">
+                          <button 
+                            onClick={() => setWantsToWrite(prev => ({ ...prev, [currentQ.id]: true }))}
+                            className={`px-5 py-2 text-sm rounded-full font-bold transition-colors ${
+                              wantsToWrite[currentQ.id] === true ? 'bg-primary text-white' : 'bg-background border border-primary/20 text-primary hover:bg-primary/10'
+                            }`}
+                          >
+                            YES
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setWantsToWrite(prev => ({ ...prev, [currentQ.id]: false }));
+                              handleNextStep();
+                            }}
+                            className={`px-5 py-2 text-sm rounded-full font-bold transition-colors ${
+                              wantsToWrite[currentQ.id] === false ? 'bg-muted-foreground text-white' : 'bg-background border border-muted text-muted-foreground hover:bg-muted/10'
+                            }`}
+                          >
+                            NO
+                          </button>
+                        </div>
 
-                  {answers[q.id] && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }} 
-                      animate={{ opacity: 1, height: 'auto' }} 
-                      className="bg-primary/5 rounded-xl p-4 mt-4"
-                    >
-                      <p className="text-sm font-medium text-foreground mb-3">
-                        Do you want to write related to this question to improve?
-                      </p>
-                      <div className="flex gap-2 mb-3">
-                        <button 
-                          onClick={() => setWantsToWrite(prev => ({ ...prev, [q.id]: true }))}
-                          className={`px-4 py-1.5 text-sm rounded-full font-bold transition-colors ${
-                            wantsToWrite[q.id] === true ? 'bg-primary text-white' : 'bg-background border border-primary/20 text-primary hover:bg-primary/10'
-                          }`}
-                        >
-                          YES
-                        </button>
-                        <button 
-                          onClick={() => setWantsToWrite(prev => ({ ...prev, [q.id]: false }))}
-                          className={`px-4 py-1.5 text-sm rounded-full font-bold transition-colors ${
-                            wantsToWrite[q.id] === false ? 'bg-muted-foreground text-white' : 'bg-background border border-muted text-muted-foreground hover:bg-muted/10'
-                          }`}
-                        >
-                          NO
-                        </button>
-                      </div>
-
-                      {wantsToWrite[q.id] && (
-                        <motion.textarea
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          value={texts[q.id] || ''}
-                          onChange={(e) => setTexts(prev => ({ ...prev, [q.id]: e.target.value }))}
-                          placeholder="Tell us more..."
-                          className="w-full bg-background border border-primary/20 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[80px]"
-                        />
-                      )}
-                    </motion.div>
-                  )}
-                </div>
-              ))}
-
-              <div className="pt-6 border-t border-primary/10 space-y-3">
-                <p className="font-medium text-foreground text-lg">
-                  Do you wish to add any other features or see anything deleted? Let the team know. Any suggestions?
-                </p>
-                <textarea
-                  value={finalFeedback}
-                  onChange={(e) => setFinalFeedback(e.target.value)}
-                  placeholder="Your suggestions matter to us..."
-                  className="w-full bg-background border border-primary/20 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[120px]"
-                />
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="sticky bottom-0 bg-card/90 backdrop-blur p-4 border-t border-primary/10 flex justify-end">
-              <Button onClick={handleSubmit} disabled={isSubmitting || Object.keys(answers).length < 5}>
-                {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-              </Button>
+                        {wantsToWrite[currentQ.id] && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-4"
+                          >
+                            <textarea
+                              value={texts[currentQ.id] || ''}
+                              onChange={(e) => setTexts(prev => ({ ...prev, [currentQ.id]: e.target.value }))}
+                              placeholder="Tell us more..."
+                              className="w-full bg-background border border-primary/20 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[100px]"
+                            />
+                            <div className="flex justify-end">
+                              <Button onClick={handleNextStep}>
+                                Next
+                              </Button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    )}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="final"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-6"
+                  >
+                    <p className="font-medium text-foreground text-xl leading-snug">
+                      Almost done! Do you wish to add any other features or see anything deleted? Let the team know. Any suggestions?
+                    </p>
+                    <textarea
+                      value={finalFeedback}
+                      onChange={(e) => setFinalFeedback(e.target.value)}
+                      placeholder="Your suggestions matter to us..."
+                      className="w-full bg-background border border-primary/20 rounded-lg p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[150px]"
+                    />
+                    <div className="flex justify-end pt-4">
+                      <Button onClick={handleSubmit} disabled={isSubmitting}>
+                        {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         </div>
