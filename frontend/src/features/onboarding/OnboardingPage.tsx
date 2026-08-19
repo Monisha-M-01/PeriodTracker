@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../hooks/useAuth';
-import { updateSettingsFn } from '../../api/settings.api';
+import { updateSettingsFn, updateProfileFn } from '../../api/settings.api';
 import { logPeriodFn } from '../../api/period.api';
 import { Spinner } from '../../components/ui/Spinner';
 import { cn } from '../../lib/utils';
@@ -33,8 +33,15 @@ export default function OnboardingPage() {
     mutationFn: logPeriodFn,
   });
 
+  const { mutateAsync: updateProfile } = useMutation({
+    mutationFn: updateProfileFn,
+  });
+
   const handleFinish = async () => {
     try {
+      if (name) {
+        await updateProfile({ name });
+      }
       if (lastPeriodDate) {
         await logPeriod({ startDate: new Date(lastPeriodDate).toISOString() });
       }
@@ -44,9 +51,9 @@ export default function OnboardingPage() {
         defaultCycleLength: notSureCycle ? 28 : cycleLength,
         periodStress: periodStress
       });
-      queryClient.invalidateQueries({ queryKey: ['settings'] });
-      queryClient.invalidateQueries({ queryKey: ['periods'] });
-      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      await queryClient.invalidateQueries({ queryKey: ['settings'] });
+      await queryClient.invalidateQueries({ queryKey: ['periods'] });
+      await queryClient.invalidateQueries({ queryKey: ['predictions'] });
       navigate('/');
     } catch (e) {
       console.error(e);
