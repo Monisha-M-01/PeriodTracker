@@ -11,6 +11,8 @@ import { FloatingBackgroundGlow } from '../ui/FloatingBackgroundGlow';
 import { AmbientParticles } from '../ui/AmbientParticles';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
+import { FeedbackModal } from '../ui/FeedbackModal';
+
 export const AppShell: React.FC = () => {
   const location = useLocation();
   const triggerHaptic = useHaptics();
@@ -137,6 +139,8 @@ export const AppShell: React.FC = () => {
           </Link>
         ))}
       </nav>
+      
+      <FeedbackModal />
     </div>
   );
 };

@@ -29,6 +29,7 @@ model User {
   symptomLogs          SymptomLog[]
   dailyCheckIns        DailyCheckIn[]
   pushSubscriptions    PushSubscription[]
+  feedbacks            Feedback[]
 
   @@map("users")
   @@index([email])
@@ -143,5 +144,34 @@ model PushSubscription {
   updatedAt DateTime @updatedAt
 
   @@map("push_subscriptions")
+  @@index([userId])
+}
+
+model Feedback {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  q1Rating         String
+  q1Text           String?
+  
+  q2Rating         String
+  q2Text           String?
+  
+  q3Rating         String
+  q3Text           String?
+  
+  q4Rating         String
+  q4Text           String?
+  
+  q5Rating         String
+  q5Text           String?
+  
+  finalSuggestions String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("feedbacks")
   @@index([userId])
 }

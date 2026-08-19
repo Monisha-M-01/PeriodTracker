@@ -11,6 +11,7 @@ import symptomRoutes from './modules/symptoms/symptoms.routes';
 import cyclesRoutes from './modules/cycles/cycles.routes';
 import checkinRoutes from './modules/checkins/checkins.routes';
 import notificationsRoutes from './modules/notifications/notifications.routes';
+import feedbackRoutes from './modules/feedback/feedback.routes';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/v1/symptoms', symptomRoutes);
 app.use('/api/v1/cycles', cyclesRoutes);
 app.use('/api/v1/checkins', checkinRoutes);
 app.use('/api/v1/notifications', notificationsRoutes);
+app.use('/api/v1/feedback', feedbackRoutes);
 
 app.use(errorHandler);
 
