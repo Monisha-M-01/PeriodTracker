@@ -15,6 +15,9 @@ import feedbackRoutes from './modules/feedback/feedback.routes';
 
 const app = express();
 
+// Trust the reverse proxy (e.g. Render) to accurately resolve X-Forwarded-For headers
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(cors({
   origin: env.FRONTEND_URL,
