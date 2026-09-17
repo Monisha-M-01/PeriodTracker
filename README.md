@@ -1,71 +1,77 @@
-# Cycle Backend
+# Period Tracker
 
-A robust Node.js/TypeScript REST API for period and cycle tracking. Designed with data privacy, isolation, and dynamic cycle predictions in mind.
+Period Tracker is a comprehensive full-stack web application designed for private and dynamic period and cycle tracking. It allows users to log their period dates, daily symptoms (such as mood, flow, and cramps), and provides dynamic predictions for future cycles and fertile windows. The app prioritizes data privacy and features an intuitive, responsive user interface.
 
-## Tech Stack
+## 🚀 Tech Stack
+
+**Frontend:**
+- **Framework:** React 19 (TypeScript) with Vite
+- **Styling:** Tailwind CSS (v4)
+- **State & Data Fetching:** React Query & Axios
+- **Routing:** React Router v7
+- **UI & Animations:** Framer Motion, Radix UI, Lucide React
+- **Data Visualization:** Recharts
+
+**Backend:**
 - **Runtime:** Node.js (TypeScript)
 - **Framework:** Express.js
 - **Database:** PostgreSQL
 - **ORM:** Prisma
 - **Validation:** Zod
-- **Auth:** JWT (Short-lived Access Token + HTTP-Only Refresh Token)
-- **Testing:** Vitest
+- **Authentication:** JWT (JSON Web Tokens) with HTTP-only cookies
+- **Rate Limiting & Security:** Express-rate-limit, Helmet, CORS
 
-## Getting Started
+## 📋 Prerequisites
 
-### Prerequisites
-- Node.js (v18+)
-- Docker (for local PostgreSQL instance)
+To run this project locally, you will need the following applications installed on your system:
 
-### Setup
+1. **[Node.js](https://nodejs.org/)** (v18 or higher) - Runtime environment for both frontend and backend.
+2. **[Git](https://git-scm.com/)** - For cloning the repository.
+3. **[PostgreSQL](https://www.postgresql.org/)** (or **[Docker](https://www.docker.com/)**) - A running PostgreSQL database instance is required. You can install PostgreSQL locally, use Docker to spin up a container (a `docker-compose.yml` is included), or use a cloud provider like Supabase.
 
-1. **Clone & Install**
+## 🛠️ Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Monisha-M-01/PeriodTracker.git
+   cd PeriodTracker
+   ```
+
+2. **Install Backend Dependencies:**
    ```bash
    npm install
    ```
 
-2. **Environment Variables**
-   Copy `.env.example` to `.env`:
+3. **Install Frontend Dependencies:**
    ```bash
-   cp .env.example .env
-   ```
-   (Modify `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` for production)
-
-3. **Start Database**
-   ```bash
-   docker-compose up -d
+   cd frontend
+   npm install
+   cd ..
    ```
 
-4. **Initialize Database Schema**
+4. **Environment Variables:**
+   - Copy the `.env.example` file to `.env` in the root directory.
+   - Update the `DATABASE_URL` and `DIRECT_URL` with your PostgreSQL connection strings.
+   - Set up your JWT secrets (`JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET`).
+
+5. **Database Setup:**
+   Run Prisma to push the schema to your database:
    ```bash
    npx prisma db push
-   # OR for migrations:
-   npx prisma migrate dev --name init
    ```
 
-5. **Run Development Server**
+6. **Run the Application:**
+   Open two terminal windows.
+   
+   **Terminal 1 (Backend):**
    ```bash
    npm run dev
    ```
+   
+   **Terminal 2 (Frontend):**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
-### Scripts (Add to package.json)
-```json
-"scripts": {
-  "dev": "tsx watch src/server.ts",
-  "build": "tsc",
-  "start": "node dist/server.js",
-  "test": "vitest",
-  "db:push": "prisma db push",
-  "db:studio": "prisma studio"
-}
-```
-
-## API Modules
-
-All endpoints are prefixed with `/api/v1`.
-
-- **`/auth`**: Signup, login, logout, refresh tokens.
-- **`/users`**: `GET /me` (profile), `PATCH /me/settings` (defaults & notifications).
-- **`/period`**: Log raw period start and end dates.
-- **`/symptoms`**: Log daily symptoms (mood, flow, cramps, etc.) using flexible categories.
-- **`/cycles`**: `GET /predictions` computes average cycle/period lengths and estimates next period and fertile windows dynamically.
+Now you can access the application at `http://localhost:5173`.
